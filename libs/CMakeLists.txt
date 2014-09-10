@@ -1,0 +1,8 @@
+AUX_SOURCE_DIRECTORY(./binder LIB_Binder_SRC)
+
+#AUX_SOURCE_DIRECTORY(./cutils LIB_Cutils_SRC)
+
+FIND_PACKAGE(StandaloneBinder REQUIRED)
+INCLUDE_DIRECTORIES(${StandaloneBinder_INCLUDE_DIR})
+
+ADD_LIBRARY(StandaloneBinder SHARED ${LIB_Binder_SRC})
