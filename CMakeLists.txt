@@ -43,13 +43,13 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/out/lib)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/build/cmakes/)
 
 #add moduels to compile
-if(EXISTS ${PROJECT_SOURCE_DIR}/binder)
-    ADD_SUBDIRECTORY(binder)
-endif(EXISTS ${PROJECT_SOURCE_DIR}/binder)
+if(EXISTS ${PROJECT_SOURCE_DIR}/libs)
+    ADD_SUBDIRECTORY(libs)
+endif(EXISTS ${PROJECT_SOURCE_DIR}/libs)
 
-if(EXISTS ${PROJECT_SOURCE_DIR}/module)
+if(EXISTS ${PROJECT_SOURCE_DIR}/kmodule)
     #ADD_SUBDIRECTORY(module) 
-endif(EXISTS ${PROJECT_SOURCE_DIR}/module)
+endif(EXISTS ${PROJECT_SOURCE_DIR}/kmodule)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/servicemanager)
     #ADD_SUBDIRECTORY(servicemanager) 
