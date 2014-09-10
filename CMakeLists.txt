@@ -1,0 +1,60 @@
+cmake_minimum_required(VERSION 2.8)
+
+#set toolchains from environment 
+IF(DEFINED ENV{CMAKE_C_COMPILER})
+    set(CMAKE_C_COMPILER $ENV{CMAKE_C_COMPILER})
+    MESSAGE(STATUS "Set CMAKE_C_COMPILER to ${CMAKE_C_COMPILER} by environment")
+ELSE()
+    unset(CMAKE_C_COMPILER)
+    MESSAGE(STATUS "unset CMAKE_C_COMPILER to ${CMAKE_C_COMPILER}")
+ENDIF()
+
+IF(DEFINED ENV{CMAKE_CXX_COMPILER})
+    set(CMAKE_CXX_COMPILER $ENV{CMAKE_CXX_COMPILER})
+    MESSAGE(STATUS "Set CMAKE_CXX_COMPILER to ${CMAKE_CXX_COMPILER} by environment")
+ELSE()
+    unset(CMAKE_CXX_COMPILER)
+    MESSAGE(STATUS "unset CMAKE_CXX_COMPILER to ${CMAKE_CXX_COMPILER}")
+ENDIF()
+
+#set c flags from environment
+IF(DEFINED ENV{CMAKE_C_FLAGS})
+    set(CMAKE_C_FLAGS $ENV{CMAKE_C_FLAGS})
+    MESSAGE(STATUS "Set CMAKE_C_FLAGS to ${CMAKE_C_FLAGS} by environment")
+ELSE()
+    unset(CMAKE_C_FLAGS)
+    MESSAGE(STATUS "unset CMAKE_C_FLAGS to ${CMAKE_C_FLAGS}")
+ENDIF()
+
+IF(DEFINED ENV{CMAKE_CXX_FLAGS})
+    set(CMAKE_CXX_FLAGS $ENV{CMAKE_CXX_FLAGS})
+    MESSAGE(STATUS "Set CMAKE_CXX_FLAGS to ${CMAKE_CXX_FLAGS} by environment")
+ELSE()
+    unset(CMAKE_CXX_FLAGS)
+    MESSAGE(STATUS "unset CMAKE_CXX_FLAGS to ${CMAKE_CXX_FLAGS}")
+ENDIF()
+
+
+#put output to out folder
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/out/bin)
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/out/lib)
+
+#set module search path
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/build/cmakes/)
+
+#add moduels to compile
+if(EXISTS ${PROJECT_SOURCE_DIR}/libs)
+    #ADD_SUBDIRECTORY(libs)
+endif(EXISTS ${PROJECT_SOURCE_DIR}/libs)
+
+if(EXISTS ${PROJECT_SOURCE_DIR}/module)
+    #ADD_SUBDIRECTORY(module) 
+endif(EXISTS ${PROJECT_SOURCE_DIR}/module)
+
+if(EXISTS ${PROJECT_SOURCE_DIR}/servicemanager)
+    #ADD_SUBDIRECTORY(servicemanager) 
+endif(EXISTS ${PROJECT_SOURCE_DIR}/servicemanager)
+
+if(EXISTS ${PROJECT_SOURCE_DIR}/test)
+    #ADD_SUBDIRECTORY(test) 
+endif(EXISTS ${PROJECT_SOURCE_DIR}/test)
