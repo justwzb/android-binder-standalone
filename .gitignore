@@ -39,6 +39,9 @@ install_manifest.txt
 .DS_Store
 ._*
 
+# tags
+cscope.files
+tags
 
 
 

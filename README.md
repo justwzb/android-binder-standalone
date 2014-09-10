@@ -13,7 +13,7 @@ cmake ..
 make
 ```
 
-### binder code from:
+### Code From:
 
 The source code of binder are copied from ASOP
 
