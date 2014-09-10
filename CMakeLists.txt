@@ -44,7 +44,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/build/cmakes/)
 
 #add moduels to compile
 if(EXISTS ${PROJECT_SOURCE_DIR}/libs)
-    #ADD_SUBDIRECTORY(libs)
+    ADD_SUBDIRECTORY(libs)
 endif(EXISTS ${PROJECT_SOURCE_DIR}/libs)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/module)
