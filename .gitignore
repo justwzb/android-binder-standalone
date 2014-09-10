@@ -26,3 +26,19 @@
 *.exe
 *.out
 *.app
+
+# CMakes
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+/out
+
+# OS X
+.DS_Store
+._*
+
+
+
+
