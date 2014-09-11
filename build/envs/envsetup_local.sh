@@ -13,5 +13,9 @@ unset CMAKE_CXX_FLAGS
 #export CMAKE_C_COMPILER="/opt/arm-2012.09/bin/arm-none-linux-gnueabi-gcc-4.7.2"
 #export CMAKE_CXX_COMPILER=""
 
-#export CMAKE_C_FLAGS="-fPIC"
-#export CMAKE_CXX_FLAGS="-fPIC"
+#usually all these should be defined
+#-DHAVE_SYS_UIO_H has bits/uio.h
+#-DHAVE_PTHREADS has pthread.h
+#-DHAVE_ENDIAN_H has endian.h
+export CMAKE_C_FLAGS="-DHAVE_SYS_UIO_H -DHAVE_PTHREADS -DHAVE_ENDIAN_H"
+export CMAKE_CXX_FLAGS="-DHAVE_SYS_UIO_H -DHAVE_PTHREADS -DHAVE_ENDIAN_H"

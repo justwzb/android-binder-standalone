@@ -1,5 +1,8 @@
 #FIND_PATH(StandaloneBinder_INCLUDE_DIR binder/binder.h ${PROJECT_SOURCE_DIR}/libs/include/)
-set(StandaloneBinder_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libs/include/)
+set(StandaloneBinder_INCLUDE_DIR 
+    ${PROJECT_SOURCE_DIR}/libs/include/ #head files of libs
+    ${PROJECT_SOURCE_DIR}/      #head files of kernel-header
+    )
 
 IF (StandaloneBinder_INCLUDE_DIR)
     SET(StandaloneBinder_FOUND TRUE)
