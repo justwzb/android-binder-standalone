@@ -1,4 +1,5 @@
-FIND_PATH(StandaloneBinder_INCLUDE_DIR binder/binder.h ${PROJECT_SOURCE_DIR}/libs/include/)
+#FIND_PATH(StandaloneBinder_INCLUDE_DIR binder/binder.h ${PROJECT_SOURCE_DIR}/libs/include/)
+set(StandaloneBinder_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/libs/include/)
 
 IF (StandaloneBinder_INCLUDE_DIR)
     SET(StandaloneBinder_FOUND TRUE)
