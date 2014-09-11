@@ -1,3 +1,7 @@
+
+In Developing, Not work now!
+=========================
+
 android-binder-standalone
 =========================
 
