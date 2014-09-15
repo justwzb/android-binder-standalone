@@ -56,5 +56,5 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/servicemanager)
 endif(EXISTS ${PROJECT_SOURCE_DIR}/servicemanager)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/test)
-    #ADD_SUBDIRECTORY(test) 
+    ADD_SUBDIRECTORY(test) 
 endif(EXISTS ${PROJECT_SOURCE_DIR}/test)

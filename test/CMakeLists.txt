@@ -1,0 +1,8 @@
+FIND_PACKAGE(StandaloneBinder REQUIRED)
+INCLUDE_DIRECTORIES(${StandaloneBinder_INCLUDE_DIR})
+
+
+AUX_SOURCE_DIRECTORY(./sampleTest SAMPLETEST_SRC)
+ADD_EXECUTABLE(sampleTest ${SAMPLETEST_SRC})
+ADD_DEPENDENCIES(sampleTest StandaloneBinder)
+TARGET_LINK_LIBRARIES(sampleTest StandaloneBinder)
