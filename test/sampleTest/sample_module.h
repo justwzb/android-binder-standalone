@@ -26,16 +26,22 @@ Not includeing:
 #ifndef __SAMPLE_MODULE_H__
 #define __SAMPLE_MODULE_H__
 
+//#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct _SAMPLE_HANDLE_T SAMPLE_HANDLE_T;
 
+typedef int int32_t;
+
 typedef struct {
     int i;
     char buf[16];
 }SAMPLE_ST;
+
+int32_t sample_base_api1(int32_t,int32_t*);
 
 /**
 @brief api to demo int as input/output paramter and return value
@@ -44,7 +50,7 @@ typedef struct {
 @param[out] out output int, will be in+1, NULL is allowed.
 @return return in+2
 */
-int sample_base_api(int in,int* out);
+int sample_base_api(int in,int * out);
 
 /**
 @brief api to demo char* as input/output paramter and return value
