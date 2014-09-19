@@ -26,8 +26,6 @@ Not includeing:
 #ifndef __SAMPLE_MODULE_H__
 #define __SAMPLE_MODULE_H__
 
-//#include <stdio.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

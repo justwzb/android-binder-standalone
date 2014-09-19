@@ -2,7 +2,13 @@ import os,sys
 __DIR__ = os.path.abspath(os.path.dirname(__file__))
 
 from ply import lex, yacc
-DEBUG = 1
+DEBUG = 0
+
+LOGDER = yacc.NullLogger()
+OUTDIR = None
+if DEBUG:
+  LOGDER = None
+  OUTDIR = __DIR__
 
 from idlTypes import Include,Function,Argument
 
@@ -58,7 +64,7 @@ def t_ccode_ID(t):
     return t
 
 def t_ccode_TAG(t):
-    r'{[a-z0-9\*]*}'
+    r'{[a-z0-9:\*]*}'
     t.value = t.value
     return t
 
@@ -82,7 +88,7 @@ def t_comment_error(t):
 def t_error(t):
     return t_ccode_error(t)
 
-lexer = lex.lex(debug=DEBUG)
+lexer = lex.lex(debug=DEBUG,errorlog=LOGDER)
 lexer.begin('ccode')
 
 #yacc
@@ -96,6 +102,7 @@ def logyacc(func,p):
 def p_empty(p):
     "empty :"
 
+#match include <xxxx.h>
 def p_include(p):
     """
     include : INCLUDE INCLUDEFILE
@@ -103,6 +110,8 @@ def p_include(p):
     logyacc("p_include",p)
     p[0] = Include(p[1] + " " + p[2])
 
+#match {oneway}RetType{typedes}
+#before function_name
 def p_function_ret(p):
     """
     function_ret : CONST 
@@ -125,6 +134,8 @@ def p_function_ret(p):
 
     p[0].smartAdd(newarg)
 
+#match ..... function_name (
+#before paramters
 def p_function_name(p):
     """
     function_name : function_ret ID '('
@@ -134,6 +145,8 @@ def p_function_name(p):
     p[0].setReturn(p[1])
     p[0].setName(p[2])
 
+#match ..... type arg, type arg ...
+#before );
 def p_function_arg(p):
     """
     function_arg : function_name CONST
@@ -150,7 +163,7 @@ def p_function_arg(p):
     """
     logyacc("function_arg1",p)
     p[0] = p[1]
-    arg = p[0].getLastArgument()
+    arg = p[0].getArgument(-1)
     if p[2] != "void":
         if arg == None or p[2] == ',':
             arg = Argument()
@@ -159,6 +172,8 @@ def p_function_arg(p):
              arg.smartAdd(p[2])
     logyacc("function_arg2",p)
 
+#match ... );
+#end of a function
 def p_function(p):
     """
     function : function_name ')' ';'
@@ -185,24 +200,59 @@ def p_error(p):
         print("Syntax error at EOF")
 
 start = 'spec'
-parser = yacc.yacc(outputdir=__DIR__, debug=DEBUG, write_tables=False)
+parser = yacc.yacc(outputdir=OUTDIR, debug=DEBUG, write_tables=False,errorlog=None)
 
 def parse(f):
     idl = f.read()
 
-    if DEBUG:
+    if 0:
         lexer.input(idl)
         for tok in lexer:
             print tok
         print("------------\n\n")
 
-    ret = parser.parse(idl)
+    result = parser.parse(idl)
     parser.restart()
+
     if DEBUG:
       print("------------\n\n")
-      for r in ret:
-        print(r)
+      for r in result:
+        print(type(r))
 
-    return ret
+    #ext error check
+    for ctx in result:
+        if isinstance(ctx,Function):
+            #check if return has length
+            ret = ctx.getReturn()
+
+            if ret.isPtr():
+              if ret.getPtrLen() == None:
+                print("Erros, function %s return a pointer without length tag, please add {len:length}" % (ctx.getName()))
+                return None
+
+            args = ctx.getArguments()
+            for arg in args:
+              if arg.isPtr():
+                l = arg.getPtrLen()
+                if l == None:
+                  print("Erros, paramter %s of %s is a pointer without length tag, please add {len:length}" % (arg.getName(),ctx.getName()))
+                  return None
+                elif "1" != l:
+                  found = False
+                  for arg1 in args:
+                    if l == arg1.getName():
+                      found = True
+                      break
+                  if not found:
+                    print("Erros, len of paramter %s of %s, %s is not a paramter, please check" % (arg.getName(),ctx.getName(),l))
+                    return None
+
+
+
+                if not arg.hasInFlag() and not arg.hasOutFlag():
+                  print("Erros, paramter %s of %s is a pointer without inout tag, please add {in} {out} or {inout}" % (arg.getName(),ctx.getName()))
+                  return None
+
+    return result
 
 

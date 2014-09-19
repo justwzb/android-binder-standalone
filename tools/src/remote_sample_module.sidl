@@ -1,0 +1,7 @@
+#include "sample_module.h"
+
+
+//{oneway}RetType{typedes} function_name(ParamType{typedes} ParamName,ParamType*{typedes}{inout}{Count} ParamName)
+
+
+int sample_base_api(int in,int*{len:1}{in} in1,int * {len:1} {inout} inout1,int * {len:len} {out} out1, int*{len:len}{inout}inoutlen ,int len);
