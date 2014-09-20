@@ -39,6 +39,6 @@ set(SAMPLETEST_SRC_CLIENT
    ${CMAKE_CURRENT_BINARY_DIR}/remote_sample_module.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/remote_test_main.c
 )
-ADD_EXECUTABLE(sampleTestClient ${SAMPLETEST_SRC_SERVICE})
+ADD_EXECUTABLE(sampleTestClient ${SAMPLETEST_SRC_CLIENT})
 set_target_properties(sampleTestClient PROPERTIES COMPILE_DEFINITIONS "BINDER_CLIENT")
 ADD_DEPENDENCIES(sampleTestClient StandaloneBinder)
