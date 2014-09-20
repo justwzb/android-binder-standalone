@@ -69,7 +69,7 @@ def gen_c_files(sidlcontext,inputfile):
     basepath = os.path.split(os.path.realpath(__file__))[0]
     #print(basepath)
 
-    basename,extname = os.path.splitext(inputfile)
+    basename,extname = os.path.splitext(os.path.basename(inputfile))
     extname = extname[1:]
     #print(basename)
     #print(extname)

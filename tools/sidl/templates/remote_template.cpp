@@ -142,7 +142,7 @@ for ctx in sidl_context:
                 int _%(name)s_len = data.readInt32(); //read length, only 32bits length support yet
                 %(qualifier)s%(typ)s* %(name)s = NULL;
                 if(_%(name)s_len > 0) {
-                    ReadableBlob _%(name)s_rblob;
+                    Parcel::ReadableBlob _%(name)s_rblob;
                     data.readBlob(_%(name)s_len,&_%(name)s_rblob);
                     %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_rblob.data();//Fixme: this data can not write, add api in Parcel
                 }
@@ -211,7 +211,7 @@ for ctx in sidl_context:
                         output("""
                 if(_%(name)s_len > 0) {
                     replay->writeInt32(_%(name)s_len);
-                    WritableBlob _%(name)s_wblob;
+                    Parcel::WritableBlob _%(name)s_wblob;
                     reply->writeBlob(_%(name)s_len,&_%(name)s_wblob);
                     memcpy(_%(name)s_wblob.data(),%(name)s,_%(name)s_len);
                 }
@@ -340,12 +340,12 @@ for ctx in sidl_context:
                     output("""
             //for out only, alloc buffer without copy; for in, alloc and copy
             if (%(name)s == NULL) {
-                data->writeInt32(-1);
+                data.writeInt32(-1);
             }
             else {
-                data->writeInt32((int)%(len)s * sizeof(%(typ)s));//write length, only support 32 bits length yet
-                WritableBlob _%(name)s_wblob;
-                data->writeBlob(%(len)s,&_%(name)s_wblob);""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
+                data.writeInt32((int)%(len)s * sizeof(%(typ)s));//write length, only support 32 bits length yet
+                Parcel::WritableBlob _%(name)s_wblob;
+                data.writeBlob(%(len)s,&_%(name)s_wblob);""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
                     if inflag:
                         output("""
                 memcpy(_%(name)s_wblob.data(),%(name)s,%(len)s* sizeof(%(typ)s));
@@ -402,9 +402,9 @@ for ctx in sidl_context:
                     output("""
                 if (%(name)s != NULL) {
                     int _%(name)s_len = data.readInt32(); //read length, only 32bits length support yet
-                    ReadableBlob _%(name)s_rblob;
+                    Parcel::ReadableBlob _%(name)s_rblob;
                     data.readBlob(_%(name)s_len,&_%(name)s_rblob);
-                    memcpy(%(name)s,_%(name)s_rblob.date(),_%(name)s_len);
+                    memcpy(%(name)s,_%(name)s_rblob.data(),_%(name)s_len);
                 }""" % {"qualifier":qualifier,"typ":typ,"name":name})
 
         output("""
@@ -416,8 +416,9 @@ for ctx in sidl_context:
         return _result;
         /*-- add you code for sample_base_api here --*/
     }
-};
 """)
+
+output("""};""")
 
 for ctx in sidl_context:
     if isinstance(ctx,Function):
@@ -449,7 +450,7 @@ for ctx in sidl_context:
 
         output("""
 %(qualifier)s%(typ)s%(star)s %(name)s( %(arglist)s ) {
-    return %=sidl_basename%_client*::Instance->%(name)s(%(calllist)s);
+    return %=sidl_basename%_client::Instance()->%(name)s(%(calllist)s);
 }""" % {"qualifier":retQualifier,"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist, "calllist":calllist} )
 
 py*/

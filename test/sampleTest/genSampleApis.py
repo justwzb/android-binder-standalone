@@ -91,7 +91,7 @@ outfd = open("remote_sample_module.sidl","wb")
 outfd.write("""\
 #include "sample_module.h"
 
-//{oneway}RetType{typedes} function_name(ParamType{typedes} ParamName,ParamType*{typedes}{inout}{Count} ParamName)
+//{oneway}RetType{typedes} function_name(ParamType{typedes} ParamName,ParamType*{typedes}{inout}{len:length} ParamName)
 """)
 
 
