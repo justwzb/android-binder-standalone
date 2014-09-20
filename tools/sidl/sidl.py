@@ -32,6 +32,8 @@ def gen_one_file(templatefile,outfile,locals):
         #print(strfrom)
         template = template.replace(strfrom,str(locals[local]))
 
+    if os.path.exists(outfile):
+        os.rename(outfile,outfile+".bak")
     ofd = open(outfile,"w")
     locals["output"] = ofd.write
 

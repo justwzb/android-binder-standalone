@@ -165,11 +165,17 @@ def p_function_arg(p):
     p[0] = p[1]
     arg = p[0].getArgument(-1)
     if p[2] != "void":
-        if arg == None or p[2] == ',':
+        if arg == None:
             arg = Argument()
             p[0].addArgument(arg)
+        elif p[2] == ',':
+            arg.smartAdd(p[2]) #let last type to name
+            arg = Argument()
+            p[0].addArgument(arg)
+
         if p[2] != ',':
              arg.smartAdd(p[2])
+
     logyacc("function_arg2",p)
 
 #match ... );
@@ -181,6 +187,11 @@ def p_function(p):
     """
     logyacc("p_function",p)
     p[0] = p[1]
+    arg = p[0].getArgument(-1)
+
+    #for last paramters
+    if arg != None:
+      arg.smartAdd(',')
 
 def p_spec(p):
     """
@@ -217,7 +228,7 @@ def parse(f):
     if DEBUG:
       print("------------\n\n")
       for r in result:
-        print(type(r))
+        print(r)
 
     #ext error check
     for ctx in result:

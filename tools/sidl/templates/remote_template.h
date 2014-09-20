@@ -8,6 +8,12 @@
 
 #if defined(BINDER_SERVICE)
 
+ /*py
+for ctx in sidl_context:
+    if isinstance(ctx,Include):
+        output(ctx.output()+"\n")
+py*/
+
 ///< call this api loop for ever and star service
 int %=sidl_basename%_service_serv();
 

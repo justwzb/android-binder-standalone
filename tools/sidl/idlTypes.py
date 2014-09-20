@@ -13,7 +13,7 @@ class Include():
 class Argument():
     def __init__(self):
         self._qualifier = ""
-        self._type = ""
+        self._type = []
         self._isPtr = False
         self._name = ""
         self._len = ""
@@ -31,11 +31,8 @@ class Argument():
     def getQualifier(self):
         return self._qualifier
 
-    def setype(self,type):
-        self._type = type
-
     def getType(self):
-        return self._type
+        return " ".join(self._type)
 
     def setIsPtr(self,isPrt):
         self._isPtr = isPrt
@@ -78,17 +75,16 @@ class Argument():
         if arg == "const":
             self.addQualifier(arg)
         elif arg == "void":
-            self.setype("")
+            self._self = []
         elif arg == "*":
             self.setIsPtr(True)
         elif arg[0] == '{' and arg[-1] == '}':
             self.addTag(arg[1:-1])
-        elif self._type == "":
-            self.setype(arg)
-        elif self._name == "":
-            self.setName(arg)
+        elif arg == ",":
+            if self._name == "":
+                self._name = self._type.pop()
         else:
-            print("smartAdd failed")
+            self._type.append(arg)
 
 
 class Function():

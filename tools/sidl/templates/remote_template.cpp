@@ -2,6 +2,42 @@
  * This file is auto-generated.  DO NOT MODIFY.
  * Original file: %=sidl_filename%
  */
+ /*py
+s_type_map = {
+    "int"                   : "Int32",
+    "int32_t"               : "Int32",
+    "unsigned int"          : "Int32",
+    "uint32_t"              : "Int32",
+    "short"                 : "Int32",
+    "short int"             : "Int32",
+    "int16_t"               : "Int32",
+    "unsigned short"        : "Int32",
+    "unsigned short int"    : "Int32",
+    "uint16_t"              : "Int32",
+    "char"                  : "Int32",
+    "int8_t"                : "Int32",
+    "unsigned char"         : "Int32",
+    "uint8_t"               : "Int32",
+    "long long"             : "Int64",
+    "int64_t"               : "Int64",
+    "unsigned long long"    : "Int64",
+    "uint64_t"              : "Int64",
+}
+def get_parcelType(typ,tags):
+    #print("typ="+typ)
+    #print("tags="+str(tags))
+
+    global s_type_map
+    if s_type_map.has_key(typ):
+        return s_type_map[typ]
+
+    if "int32" in tags:
+        return "Int32"
+    elif int64 in tags:
+        return "Int64"
+    else:
+        return None
+py*/
 
 #define LOG_TAG     "%=sidl_basename%"
 
@@ -94,32 +130,27 @@ for ctx in sidl_context:
                 name = "_arg"+str(idx)
                 idx += 1
 
-            if ( 
-                "int32" in tags
-                or typ == "int"
-                or typ == "int32_t"
-                ):
+            if get_parcelType(typ,tags) != None:
+                parcelType = get_parcelType(typ,tags);
 
                 if not isPtr:
                     output("""
-                %(qualifier)s%(typ)s %(name)s = data.readInt32();  //int as input paramter
-""" % {"qualifier":qualifier,"typ":typ,"name":name})
+                %(qualifier)s%(typ)s %(name)s = (%(qualifier)s%(typ)s)data.read%(parcelType)s();  //%(typ)s as input paramter
+""" % {"qualifier":qualifier,"typ":typ,"name":name,"parcelType":parcelType})
                 else:
                     output("""
-                //TODO: use blob
-                int _%(name)s_len = data.readInt32(); //read length
-                %(typ)s* %(name)s = (%(typ)s*)malloc(sizeof(%(typ)s)*_%(name)s_len);""" % {"qualifier":qualifier,"typ":typ,"name":name})
-
-                    if inflag:
-                        output("""
-                data.read(%(name)s,sizeof(%(typ)s)*_%(name)s_len)
-""")
-                    else:
-                        output("""
-                memset(%(name)s,0,sizeof(%(typ)s)*_%(name)s_len);
+                int _%(name)s_len = data.readInt32(); //read length, only 32bits length support yet
+                %(qualifier)s%(typ)s* %(name)s = NULL;
+                if(_%(name)s_len > 0) {
+                    ReadableBlob _%(name)s_rblob;
+                    data.readBlob(_%(name)s_len,&_%(name)s_rblob);
+                    %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_rblob.data();//Fixme: this data can not write, add api in Parcel
+                }
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
             else:
-                pass
+                output("""
+                #error not support this type of paramter %(qualifier)s%(typ)s %(name)s yet, please add code yourself
+""" % {"qualifier":qualifier,"typ":typ,"name":name,"parcelType":parcelType})
 
         #gen arglist for func call
         calllist = ""
@@ -147,20 +178,17 @@ for ctx in sidl_context:
                 reply->writeNoException(); //fixed check
 """)
 
-        if ( 
-            "int32" in retTags
-            or typ == "int"
-            or typ == "int32_t"
-            ):
-                if not retIsPtr:
-                    output("""
-                reply->writeInt32(_result); //int as return value
-""")
-                else:
-                    output("""
+        if get_parcelType(retTyp,retTags) != None:
+            retParcelType = get_parcelType(retTyp,retTags);
+
+            if not retIsPtr:
+                output("""
+                reply->write%(parcelType)s(_result); //%(typ)s as return value
+""" % { "parcelType":retParcelType,"typ":retTyp} )
+            else:
+                output("""
                 #error not support this type of return yet, please add code for '%(name)s' yourself
 """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
-
 
         idx = 1
         for arg in ctx.getArguments():
@@ -176,20 +204,17 @@ for ctx in sidl_context:
                 name = "_arg"+str(idx)
                 idx += 1
 
-            if ( 
-                "int32" in tags
-                or typ == "int"
-                or typ == "int32_t"
-                ):
+            if get_parcelType(typ,tags) != None:
+                parcelType = get_parcelType(typ,tags);
                 if isPtr:
                     if outflag:
                         output("""
-                //TODO: use blob
-                reply->writeInt32Array(_%(name)s_len,%(name)s);""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star})
-
-                    output("""
-                free(%(name)s);
-                %(name)s = NULL;
+                if(_%(name)s_len > 0) {
+                    replay->writeInt32(_%(name)s_len);
+                    WritableBlob _%(name)s_wblob;
+                    reply->writeBlob(_%(name)s_len,&_%(name)s_wblob);
+                    memcpy(_%(name)s_wblob.data(),%(name)s,_%(name)s_len);
+                }
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star})
 
         output("""
@@ -304,29 +329,35 @@ for ctx in sidl_context:
                 name = "_arg"+str(idx)
                 idx += 1
 
-            if (
-                "int32" in tags
-                or typ == "int"
-                or typ == "int32_t"
-                ):
+            if get_parcelType(typ,tags) != None:
+                parcelType = get_parcelType(typ,tags);
 
                 if not isPtr:
                     output("""
-            data.writeInt32(%(name)s);  //int as input paramter
-""" % {"qualifier":qualifier,"typ":typ,"name":name})
-                elif inflag:
-                    #TODO: use blob
-                    output("""
-            data.writeInt32Array(%(len)s, %(name)s);  //int%(star)s as input paramter
-""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
+            data.write%(parcelType)s(%(name)s);  //%(typ)s as input paramter
+""" % {"qualifier":qualifier,"typ":typ,"name":name,"parcelType":parcelType})
                 else:
                     output("""
-            if ( %(name)s == NULL ) {
-                data.writeInt32(-1);
+            //for out only, alloc buffer without copy; for in, alloc and copy
+            if (%(name)s == NULL) {
+                data->writeInt32(-1);
             }
             else {
-                data.writeInt32(%(len)s);
+                data->writeInt32((int)%(len)s * sizeof(%(typ)s));//write length, only support 32 bits length yet
+                WritableBlob _%(name)s_wblob;
+                data->writeBlob(%(len)s,&_%(name)s_wblob);""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
+                    if inflag:
+                        output("""
+                memcpy(_%(name)s_wblob.data(),%(name)s,%(len)s* sizeof(%(typ)s));
             }
+""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
+                    else:
+                        output("""
+            }
+""")
+            else:
+                output("""
+            #error not support this type of paramter %(qualifier)s%(typ)s %(name)s yet, please add code yourself
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
 
 
@@ -336,15 +367,12 @@ for ctx in sidl_context:
             if(reply.readExceptionCode() == 0) {//fix check
 """ % (ctx.getName()))
 
-        if ( 
-            "int32" in retTags
-            or retTyp == "int"
-            or retTyp == "int32_t"
-            ):
+        if get_parcelType(retTyp,retTags) != None:
+            retParcelType = get_parcelType(typ,tags);
             if not retIsPtr:
                 output("""
-                _result = reply.readInt32();//int as return value
-""")
+                _result = reply.read%(parcelType)s();//int as return value
+""" % {"parcelType":retParcelType})
             else:
                 output("""
                 #error not support generate code for int* return, please add code yourself
@@ -366,17 +394,18 @@ for ctx in sidl_context:
                 name = "_arg"+str(idx)
                 idx += 1   
 
-            if (
-                "int32" in tags
-                or typ == "int"
-                or typ == "int32_t"
-                ):
+            if get_parcelType(typ,tags) != None:
+                parcelType = get_parcelType(typ,tags);
                 if not isPtr:
                     pass
                 elif outflag:
                     output("""
-                reply.readInt32Array(%(len)s,%(name)s); //TODO need add this api
-"""  % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len} )
+                if (%(name)s != NULL) {
+                    int _%(name)s_len = data.readInt32(); //read length, only 32bits length support yet
+                    ReadableBlob _%(name)s_rblob;
+                    data.readBlob(_%(name)s_len,&_%(name)s_rblob);
+                    memcpy(%(name)s,_%(name)s_rblob.date(),_%(name)s_len);
+                }""" % {"qualifier":qualifier,"typ":typ,"name":name})
 
         output("""
             }
