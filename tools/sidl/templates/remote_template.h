@@ -46,6 +46,9 @@ for ctx in sidl_context:
         arglist = arglist[:-2]
         calllist = calllist[:-2]
 
+        if arglist == "":
+            calllist = arglist = "void"
+
         #return info
         result = ctx.getReturn()
         retQualifier = result.getQualifier()

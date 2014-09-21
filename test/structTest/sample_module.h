@@ -94,7 +94,7 @@ SAMPLE_ST* sample_st_api(SAMPLE_ST* pin, SAMPLE_ST* pout);
 
 SAMPLE_HANDLE_T* sample_handle_api(SAMPLE_HANDLE_T* pin,SAMPLE_HANDLE_T* pout);
 
-void sample_oneway_api(int in);
+
 
 #ifdef __cplusplus
 }

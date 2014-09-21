@@ -32,7 +32,10 @@ class Argument():
         return self._qualifier
 
     def getType(self):
-        return " ".join(self._type)
+        if len(self._type) > 0:
+            return " ".join(self._type)
+        else:
+            return "void"
 
     def setIsPtr(self,isPrt):
         self._isPtr = isPrt
@@ -75,7 +78,7 @@ class Argument():
         if arg == "const":
             self.addQualifier(arg)
         elif arg == "void":
-            self._self = []
+            self._type = []
         elif arg == "*":
             self.setIsPtr(True)
         elif arg[0] == '{' and arg[-1] == '}':

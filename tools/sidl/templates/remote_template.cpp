@@ -33,7 +33,7 @@ def get_parcelType(typ,tags):
 
     if "int32" in tags:
         return "Int32"
-    elif int64 in tags:
+    elif "int64" in tags:
         return "Int64"
     else:
         return None
@@ -169,45 +169,58 @@ for ctx in sidl_context:
         retIsPtr = result.isPtr()
         retStar = "*" if retIsPtr else ""
         retTags = result.getTags();
+        oneway = "oneway" in retTags
 
-        output("""
+        if retTyp == "void":
+            output("""
+                %(name)s_stub( %(calllist)s );
+""" % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"calllist":calllist } )
+        else:
+            output("""
                 %(qualifier)s%(typ)s%(star)s _result = %(name)s_stub( %(calllist)s );
 """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"calllist":calllist } )
 
-        output("""
+        if not oneway:
+            output("""
                 reply->writeNoException(); //fixed check
 """)
 
-        if get_parcelType(retTyp,retTags) != None:
-            retParcelType = get_parcelType(retTyp,retTags);
+            if get_parcelType(retTyp,retTags) != None:
+                retParcelType = get_parcelType(retTyp,retTags);
 
-            if not retIsPtr:
-                output("""
+                if not retIsPtr:
+                    output("""
                 reply->write%(parcelType)s(_result); //%(typ)s as return value
 """ % { "parcelType":retParcelType,"typ":retTyp} )
+                else:
+                    output("""
+                #error not support this type of return yet, please add code for '%(name)s' yourself
+""" % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
+            elif retTyp == "void":
+                pass
             else:
                 output("""
                 #error not support this type of return yet, please add code for '%(name)s' yourself
 """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
 
-        idx = 1
-        for arg in ctx.getArguments():
-            tags = arg.getTags()
-            inflag = arg.hasInFlag()
-            outflag = arg.hasOutFlag()
-            typ = arg.getType()
-            isPtr = arg.isPtr()
-            star = "*" if isPtr else ""
-            qualifier = arg.getQualifier()
-            name = arg.getName()
-            if name == "":
-                name = "_arg"+str(idx)
-                idx += 1
+            idx = 1
+            for arg in ctx.getArguments():
+                tags = arg.getTags()
+                inflag = arg.hasInFlag()
+                outflag = arg.hasOutFlag()
+                typ = arg.getType()
+                isPtr = arg.isPtr()
+                star = "*" if isPtr else ""
+                qualifier = arg.getQualifier()
+                name = arg.getName()
+                if name == "":
+                    name = "_arg"+str(idx)
+                    idx += 1
 
-            if get_parcelType(typ,tags) != None:
-                parcelType = get_parcelType(typ,tags);
-                if isPtr:
-                    if outflag:
+
+                if isPtr and outflag:
+                    if get_parcelType(typ,tags) != None:
+                        parcelType = get_parcelType(typ,tags);
                         output("""
                 if(_%(name)s_len > 0) {
                     replay->writeInt32(_%(name)s_len);
@@ -215,6 +228,10 @@ for ctx in sidl_context:
                     reply->writeBlob(_%(name)s_len,&_%(name)s_wblob);
                     memcpy(_%(name)s_wblob.data(),%(name)s,_%(name)s_len);
                 }
+""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star})
+                    else:
+                        output("""
+                #error not support output paramter %(typ)s %(name)s yet, please add code for '%(name)s' yourself
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star})
 
         output("""
@@ -303,6 +320,8 @@ for ctx in sidl_context:
         retIsPtr = result.isPtr()
         retStar = "*" if retIsPtr else ""
         retTags = result.getTags();
+        oneway = "oneway" in retTags
+        binderFlag = "FLAG_ONEWAY" if oneway else "0"
 
         output("""
     %(qualifier)s%(typ)s%(star)s %(name)s( %(arglist)s ) {
@@ -362,50 +381,58 @@ for ctx in sidl_context:
 
 
         output("""
-            _binder->transact(TRANSACTION_%s,data, &reply,0);
+            _binder->transact(TRANSACTION_%s,data, &reply,%s);
+""" % (ctx.getName(),binderFlag))
 
+        if not oneway:
+            output("""
             if(reply.readExceptionCode() == 0) {//fix check
-""" % (ctx.getName()))
-
-        if get_parcelType(retTyp,retTags) != None:
-            retParcelType = get_parcelType(typ,tags);
-            if not retIsPtr:
-                output("""
-                _result = reply.read%(parcelType)s();//int as return value
-""" % {"parcelType":retParcelType})
-            else:
-                output("""
-                #error not support generate code for int* return, please add code yourself
 """)
 
-        #output paramters
-        idx = 1
-        for arg in ctx.getArguments():
-            tags = arg.getTags()
-            inflag = arg.hasInFlag()
-            outflag = arg.hasOutFlag()
-            typ = arg.getType()
-            isPtr = arg.isPtr()
-            star = "*" if isPtr else ""
-            qualifier = arg.getQualifier()
-            len = arg.getPtrLen()
-            name = arg.getName()
-            if name == "":
-                name = "_arg"+str(idx)
-                idx += 1   
-
-            if get_parcelType(typ,tags) != None:
-                parcelType = get_parcelType(typ,tags);
-                if not isPtr:
-                    pass
-                elif outflag:
+            if get_parcelType(retTyp,retTags) != None:
+                retParcelType = get_parcelType(typ,tags);
+                if not retIsPtr:
                     output("""
+                _result = reply.read%(parcelType)s();//int as return value
+""" % {"parcelType":retParcelType})
+                else:
+                    output("""
+                #error not support generate code for int* return, please add code yourself
+""")
+            else:
+                output(""" #error not support this type of return yet, please add code for '%(name)s' yourself
+""" % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
+
+            #output paramters
+            idx = 1
+            for arg in ctx.getArguments():
+                tags = arg.getTags()
+                inflag = arg.hasInFlag()
+                outflag = arg.hasOutFlag()
+                typ = arg.getType()
+                isPtr = arg.isPtr()
+                star = "*" if isPtr else ""
+                qualifier = arg.getQualifier()
+                len = arg.getPtrLen()
+                name = arg.getName()
+                if name == "":
+                    name = "_arg"+str(idx)
+                    idx += 1   
+
+                if isPtr and outflag:
+                    if get_parcelType(typ,tags) != None:
+                        parcelType = get_parcelType(typ,tags);
+                        output("""
                 if (%(name)s != NULL) {
                     int _%(name)s_len = data.readInt32(); //read length, only 32bits length support yet
                     Parcel::ReadableBlob _%(name)s_rblob;
                     data.readBlob(_%(name)s_len,&_%(name)s_rblob);
                     memcpy(%(name)s,_%(name)s_rblob.data(),_%(name)s_len);
                 }""" % {"qualifier":qualifier,"typ":typ,"name":name})
+                    else:
+                        output("""
+                #error not support this type of output paramter %(qualifier)s%(typ)s %(name)s yet, please add code yourself
+""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
 
         output("""
             }

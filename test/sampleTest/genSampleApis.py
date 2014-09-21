@@ -41,6 +41,8 @@ for typ in types:
 """ % {"typ":typ,"tt":tt} )
 
 outfd.write("""
+void sample_void_oneshot(void);
+
 #ifdef __cplusplus
 }
 #endif
@@ -61,15 +63,18 @@ outfd.write("""\
 #include <unistd.h>
 
 #define SAMPLE_PTR(type,in,pin,pout,pinout,len)   {\\
+    printf("%s:in=%d",__FUNCTION__,in);\\
     typeof(in) ret = in;\\
-    if(pin!=NULL) ret += *pin;\\
-    if(pinout!=NULL) ret += *pinout;\\
+    if(pin!=NULL) {ret += *pin; printf("pin[0]=%d",(int)pin[0]);}\\
+    if(pinout!=NULL) {ret += *pinout; printf("pinout[0]=%d",(int)pinout[0]);}\\
+    printf("\\n");\\
     int i;\\
     for(i=0;i<len;i++) {\\
         if(pout!=NULL) *(pout+i) = ret;\\
         if(pinout!=NULL) *(pinout+i) = ret;\\
     }\\
     return ret;}\\
+
 """)
 
 for typ in types:
@@ -82,6 +87,12 @@ for typ in types:
     SAMPLE_PTR(%(typ)s,in,pin,pout,pinout,len)
 }
 """ % {"typ":typ,"tt":tt} )
+
+outfd.write("""
+void sample_void_oneshot(void) {
+    printf("sample_void_oneshot");
+}
+""")
 outfd.close()
 outfd = None
 
@@ -101,6 +112,11 @@ for typ in types:
 %(typ)s sample_%(tt)s_prt_1(%(typ)s in,%(typ)s{in}{len:1}* pin,%(typ)s{out}{len:1}* pout,%(typ)s{inout}{len:1}* pinout);
 %(typ)s sample_%(tt)s_prt_len(%(typ)s in,%(typ)s{in}{len:len}* pin,%(typ)s{out}{len:len}* pout,%(typ)s{inout}{len:len}* pinout,%(typ)s len);
 """ % {"typ":typ,"tt":tt} )
+
+outfd.write("""
+{oneway}void sample_void_oneshot(void);
+""")
+
 outfd.close()
 outfd = None
 
