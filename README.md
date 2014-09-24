@@ -27,3 +27,7 @@ https://android.googlesource.com/platform/frameworks/native/+/android-4.4.4_r2.0
 kernel module
 https://android.googlesource.com/kernel/common/+log/android-3.10
 42df511
+
+Note:
+http://osxr.org/android/source/system/core/include/arch/linux-x86/AndroidConfig.h
+https://android.googlesource.com/platform/manifest/+/android-4.4.4_r2.0.1/default.xml

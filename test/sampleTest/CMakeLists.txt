@@ -42,3 +42,4 @@ set(SAMPLETEST_SRC_CLIENT
 ADD_EXECUTABLE(sampleTestClient ${SAMPLETEST_SRC_CLIENT})
 set_target_properties(sampleTestClient PROPERTIES COMPILE_DEFINITIONS "BINDER_CLIENT")
 ADD_DEPENDENCIES(sampleTestClient StandaloneBinder)
+TARGET_LINK_LIBRARIES(sampleTestClient StandaloneBinder)

@@ -10,20 +10,17 @@ int main(int arg, char** argv) {
     return remote_sample_module_service_init();
 }
 
-
 #elif defined(BINDER_CLIENT)
 
 int main(int arg, char** argv) {
 
     int in = 1;
-    int out = 0;
+    int pin = 2;
+    int pout = 3;
+    int pinout = 4;
 
-    int ret = sample_base_api(in,&out);
-    printf("test sample_base_api 1 in=%d,out=%d,ret=%d\n",in,out,ret);
-
-    in = 2;
-    ret = sample_base_api(in,NULL);
-    printf("test sample_base_api 2 in=%d,out=<null>,ret=%d\n",in,ret);
+    int ret = sample_int_prt_1(in,&pin,&pout,&pinout);
+    printf("test sample_int_prt_1 in=%d,pin=%d,pout=%d,pinout=%d,ret=%d\n",in,pin,pout,pinout,ret);
 }
 
 #else
