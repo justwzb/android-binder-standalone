@@ -29,9 +29,10 @@
 #define ASHMEM_IS_UNPINNED 0
 #define ASHMEM_IS_PINNED 1
 struct ashmem_pin {
- __u32 offset;
+//lihui change __U32 to __uint32_t
+ __uint32_t offset;
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
- __u32 len;
+ __uint32_t len;
 };
 #define __ASHMEMIOC 0x77
 #define ASHMEM_SET_NAME _IOW(__ASHMEMIOC, 1, char[ASHMEM_NAME_LEN])
