@@ -223,7 +223,7 @@ for ctx in sidl_context:
                         parcelType = get_parcelType(typ,tags);
                         output("""
                 if(_%(name)s_len > 0) {
-                    replay->writeInt32(_%(name)s_len);
+                    reply->writeInt32(_%(name)s_len);
                     Parcel::WritableBlob _%(name)s_wblob;
                     reply->writeBlob(_%(name)s_len,&_%(name)s_wblob);
                     memcpy(_%(name)s_wblob.data(),%(name)s,_%(name)s_len);
