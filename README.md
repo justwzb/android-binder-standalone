@@ -24,11 +24,16 @@ The source code of binder are copied from ASOP
 binder & servicemanager
 https://android.googlesource.com/platform/frameworks/native/+/android-4.4.4_r2.0.1
 
+include/kernel 
+https://android.googlesource.com/platform/bionic/+/android-4.4.4_r2.0.1
+
 kernel module
 https://android.googlesource.com/kernel/common/+log/android-3.10 42df511
-
-include/kernel <-- bionic
 
 Note:
 http://osxr.org/android/source/system/core/include/arch/linux-x86/AndroidConfig.h
 https://android.googlesource.com/platform/manifest/+/android-4.4.4_r2.0.1/default.xml
+
+
+TODO:
+CallStack.cpp   Use backtrace for CURRENT_THREAD

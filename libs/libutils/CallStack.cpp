@@ -97,10 +97,13 @@ void CallStack::update(int32_t ignoreDepth, int32_t maxDepth, pid_t tid) {
     }
     ssize_t count;
 
+    //TODO: lihui not supported on none android yet, try to use backtrace for CURRENT_THREAD
     if (tid >= 0) {
-        count = unwind_backtrace_thread(tid, mStack, ignoreDepth + 1, maxDepth);
+        //count = unwind_backtrace_thread(tid, mStack, ignoreDepth + 1, maxDepth);
+        count = -1;
     } else if (tid == CURRENT_THREAD) {
-        count = unwind_backtrace(mStack, ignoreDepth + 1, maxDepth);
+        //count = unwind_backtrace(mStack, ignoreDepth + 1, maxDepth);
+        count = -1;
     } else {
         ALOGE("%s: Invalid tid specified (%d)", __FUNCTION__, tid);
         count = 0;
@@ -131,6 +134,7 @@ String8 CallStack::toString(const char* prefix) const {
 void CallStack::print(Printer& printer) const {
     backtrace_symbol_t symbols[mCount];
 
+#if 0
     get_backtrace_symbols(mStack, mCount, symbols);
     for (size_t i = 0; i < mCount; i++) {
         char line[MAX_BACKTRACE_LINE_LENGTH];
@@ -139,6 +143,9 @@ void CallStack::print(Printer& printer) const {
         printer.printLine(line);
     }
     free_backtrace_symbols(symbols, mCount);
+#else
+    printer.printLine("Not support CallStack Yet");
+#endif
 }
 
 }; // namespace android
