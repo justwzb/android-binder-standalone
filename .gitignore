@@ -43,5 +43,7 @@ install_manifest.txt
 cscope.files
 tags
 
+# sftp plugin
+sftp-config.json
 
 
