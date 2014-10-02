@@ -267,6 +267,8 @@ int %=sidl_basename%_service_add() {
     %=sidl_basename%_service::Instance();
 }
 
+%=sidl_basename%_service* %=sidl_basename%_service::_instance = NULL;
+
 #elif defined(BINDER_CLIENT)
 
 class %=sidl_basename%_client  
@@ -321,14 +323,21 @@ for ctx in sidl_context:
         retStar = "*" if retIsPtr else ""
         retTags = result.getTags();
         oneway = "oneway" in retTags
-        binderFlag = "FLAG_ONEWAY" if oneway else "0"
+        binderFlag = "IBinder::FLAG_ONEWAY" if oneway else "0"
 
         output("""
     %(qualifier)s%(typ)s%(star)s %(name)s( %(arglist)s ) {
         Parcel data, reply;
 
-        /*-- add you code for %(name)s here --*/
-        %(qualifier)s%(typ)s%(star)s _result;
+        /*-- add you code for %(name)s here --*/\
+""" % {"qualifier":retQualifier ,"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
+
+        if retTyp != "void":
+            output("""
+        %(qualifier)s%(typ)s%(star)s _result;\
+""" % {"qualifier":retQualifier ,"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
+
+        output("""
         try {
             data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 """ % {"qualifier":retQualifier ,"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
@@ -388,8 +397,9 @@ for ctx in sidl_context:
             output("""
             if(reply.readExceptionCode() == 0) {//fix check
 """)
-
-            if get_parcelType(retTyp,retTags) != None:
+            if retTyp != "void":
+                pass
+            elif get_parcelType(retTyp,retTags) != None:
                 retParcelType = get_parcelType(typ,tags);
                 if not retIsPtr:
                     output("""
@@ -417,7 +427,7 @@ for ctx in sidl_context:
                 name = arg.getName()
                 if name == "":
                     name = "_arg"+str(idx)
-                    idx += 1   
+                    idx += 1
 
                 if isPtr and outflag:
                     if get_parcelType(typ,tags) != None:
@@ -434,18 +444,22 @@ for ctx in sidl_context:
                 #error not support this type of output paramter %(qualifier)s%(typ)s %(name)s yet, please add code yourself
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
 
+            output("""
+            }""")
         output("""
-            }
         }catch(...) {
             ALOGW(SERVICE_NAME"_client sample_base_api error");
         }
 
-        return _result;
+        %s
         /*-- add you code for sample_base_api here --*/
     }
-""")
+""" % ("return _result;" if retTyp != "void" else ""))
 
-output("""};""")
+output("""};
+
+%=sidl_basename%_client* %=sidl_basename%_client::_instance = NULL;
+""")
 
 for ctx in sidl_context:
     if isinstance(ctx,Function):
