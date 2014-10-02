@@ -1,22 +1,22 @@
 #include kernel headers
 IF($ENV{CMAKE_TARGET_ARCH} STREQUAL "arm")
     set(KERNEL_INCLUDE_DIR_ARCH
-        ${PROJECT_SOURCE_DIR}/libs/include/kernel/arch-arm
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/kernel/arch-arm
     )
 ELSEIF($ENV{CMAKE_TARGET_ARCH} STREQUAL "mips")
     set(KERNEL_INCLUDE_DIR_ARCH
-        ${PROJECT_SOURCE_DIR}/libs/include/kernel/arch-mips
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/kernel/arch-mips
     )
-ELSEIF($ENV{CMAKE_TARGET_ARCH} STREQUAL "x86-atom")
+ELSEIF($ENV{CMAKE_TARGET_ARCH} STREQUAL "x86")
     set(KERNEL_INCLUDE_DIR_ARCH
-        ${PROJECT_SOURCE_DIR}/libs/include/kernel/arch-x86
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/kernel/arch-x86
     )
 ELSE()
     MESSAGE(FATAL_ERROR "Unknown arch $ENV{CMAKE_TARGET_ARCH}")
 ENDIF()
 set(KERNEL_INCLUDE_DIR
     ${KERNEL_INCLUDE_DIR_ARCH}
-    ${PROJECT_SOURCE_DIR}/libs/include/kernel/common
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/kernel/common
 )
 INCLUDE_DIRECTORIES(${KERNEL_INCLUDE_DIR})
 
@@ -60,7 +60,9 @@ SET(LIB_Utils_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/VectorImpl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/misc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/Looper.cpp
-    #on device,Trace.cpp is added but no needed here
+
+    #on android, below files are only added on device.
+    #${CMAKE_CURRENT_SOURCE_DIR}/libutils/Trace.cpp
 )
 
 #libcutils
@@ -93,24 +95,34 @@ SET(LIB_Cutils_SRC
 
     #for ashmem, device only on android, but kernel module needed
     ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/ashmem-dev.c
-    #below module may only work on android, not debuged
-    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/android_reboot.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/debugger.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/klog.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/partition_utils.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/properties.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/qtaguid.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/trace.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/uevent.c
+
+    #on android, below files are only added on device.
+    #${CMAKE_CURRENT_SOURCE_DIR}/libcutils/android_reboot.c
+    #${CMAKE_CURRENT_SOURCE_DIR}/libcutils/debugger.c
+    #${CMAKE_CURRENT_SOURCE_DIR}/libcutils/klog.c
+    #${CMAKE_CURRENT_SOURCE_DIR}/libcutils/partition_utils.c
+    #${CMAKE_CURRENT_SOURCE_DIR}/libcutils/properties.c
+    #${CMAKE_CURRENT_SOURCE_DIR}/libcutils/qtaguid.c
+    #${CMAKE_CURRENT_SOURCE_DIR}/libcutils/trace.c
+    #${CMAKE_CURRENT_SOURCE_DIR}/libcutils/uevent.c
 
     #TODO arch-arm/memset32.S etc
     ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/arch-arm/memset32.S
 )
-ADD_DEFINITIONS(-DANDROID_SMP=1)
 
+#bionic, only very limited needed c files are added
+SET(LIB_Bionic_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/bionic/libc/string/strlcpy.c
+)
 
 FIND_PACKAGE(StandaloneBinder REQUIRED)
 INCLUDE_DIRECTORIES(${StandaloneBinder_INCLUDE_DIR})
 
-ADD_LIBRARY(StandaloneBinder SHARED ${LIB_Binder_SRC} ${LIB_Log_SRC} ${LIB_Utils_SRC} ${LIB_Cutils_SRC})
+ADD_LIBRARY(StandaloneBinder SHARED 
+    ${LIB_Binder_SRC}
+    ${LIB_Log_SRC}
+    ${LIB_Utils_SRC}
+    ${LIB_Cutils_SRC}
+    ${LIB_Bionic_SRC}
+)
 TARGET_LINK_LIBRARIES(StandaloneBinder pthread)
