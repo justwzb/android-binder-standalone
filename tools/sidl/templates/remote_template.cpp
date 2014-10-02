@@ -173,11 +173,11 @@ for ctx in sidl_context:
 
         if retTyp == "void":
             output("""
-                %(name)s_stub( %(calllist)s );
+                %(name)s( %(calllist)s );
 """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"calllist":calllist } )
         else:
             output("""
-                %(qualifier)s%(typ)s%(star)s _result = %(name)s_stub( %(calllist)s );
+                %(qualifier)s%(typ)s%(star)s _result = %(name)s( %(calllist)s );
 """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"calllist":calllist } )
 
         if not oneway:
