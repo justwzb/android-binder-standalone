@@ -7,7 +7,7 @@
 #include "remote_sample_module.h"
 
 int main(int arg, char** argv) {
-    return remote_sample_module_service_init();
+    return remote_sample_module_service_serv();
 }
 
 #elif defined(BINDER_CLIENT)

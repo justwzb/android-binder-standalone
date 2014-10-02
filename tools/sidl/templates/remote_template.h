@@ -6,6 +6,10 @@
 #ifndef __%=sidl_basename%_h__
 #define __%=sidl_basename%_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(BINDER_SERVICE)
 
  /*py
@@ -24,6 +28,11 @@ int %=sidl_basename%_service_add();
  #error This file is only used on server
 #else
  #error Must define BINDER_SERVICE or BINDER_CLIENT
+#endif
+
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
