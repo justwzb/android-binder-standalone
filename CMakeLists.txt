@@ -52,7 +52,7 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/kmodule)
 endif(EXISTS ${PROJECT_SOURCE_DIR}/kmodule)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/servicemanager)
-    #ADD_SUBDIRECTORY(servicemanager) 
+    ADD_SUBDIRECTORY(servicemanager) 
 endif(EXISTS ${PROJECT_SOURCE_DIR}/servicemanager)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/test)

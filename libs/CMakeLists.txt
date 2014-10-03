@@ -1,25 +1,8 @@
-#include kernel headers
-IF($ENV{CMAKE_TARGET_ARCH} STREQUAL "arm")
-    set(KERNEL_INCLUDE_DIR_ARCH
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/kernel/arch-arm
-    )
-ELSEIF($ENV{CMAKE_TARGET_ARCH} STREQUAL "mips")
-    set(KERNEL_INCLUDE_DIR_ARCH
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/kernel/arch-mips
-    )
-ELSEIF($ENV{CMAKE_TARGET_ARCH} STREQUAL "x86")
-    set(KERNEL_INCLUDE_DIR_ARCH
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/kernel/arch-x86
-    )
-ELSE()
-    MESSAGE(FATAL_ERROR "Unknown arch $ENV{CMAKE_TARGET_ARCH}")
-ENDIF()
-set(KERNEL_INCLUDE_DIR
-    ${KERNEL_INCLUDE_DIR_ARCH}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/kernel/common
-)
-INCLUDE_DIRECTORIES(${KERNEL_INCLUDE_DIR})
+FIND_PACKAGE(Kernel REQUIRED)
+INCLUDE_DIRECTORIES(${Kernel_INCLUDE_DIR})
 
+FIND_PACKAGE(StandaloneBinder REQUIRED)
+INCLUDE_DIRECTORIES(${StandaloneBinder_INCLUDE_DIR})
 
 #binder
 AUX_SOURCE_DIRECTORY(./binder LIB_Binder_SRC)
@@ -114,9 +97,6 @@ SET(LIB_Cutils_SRC
 SET(LIB_Bionic_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/bionic/libc/string/strlcpy.c
 )
-
-FIND_PACKAGE(StandaloneBinder REQUIRED)
-INCLUDE_DIRECTORIES(${StandaloneBinder_INCLUDE_DIR})
 
 ADD_LIBRARY(StandaloneBinder SHARED 
     ${LIB_Binder_SRC}
