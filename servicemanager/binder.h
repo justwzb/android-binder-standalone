@@ -5,6 +5,7 @@
 #define _BINDER_H_
 
 #include <sys/ioctl.h>
+#include <stdint.h>
 #include <linux/binder.h>
 
 struct binder_state;

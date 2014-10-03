@@ -6,11 +6,11 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#include <private/android_filesystem_config.h>
+//#include <private/android_filesystem_config.h>
 
 #include "binder.h"
 
-#if 0
+#if 1
 #define ALOGI(x...) fprintf(stderr, "svcmgr: " x)
 #define ALOGE(x...) fprintf(stderr, "svcmgr: " x)
 #else
@@ -18,6 +18,7 @@
 #include <cutils/log.h>
 #endif
 
+#if 0   //lihui, removed android permission check
 /* TODO:
  * These should come from a config file or perhaps be
  * based on some namespace rules of some sort (media
@@ -49,6 +50,7 @@ static struct {
     { AID_MEDIA, "common_time.config" },
     { AID_KEYSTORE, "android.security.keystore" },
 };
+#endif
 
 void *svcmgr_handle;
 
@@ -78,6 +80,7 @@ int str16eq(uint16_t *a, const char *b)
 
 int svc_can_register(unsigned uid, uint16_t *name)
 {
+#if 0
     unsigned n;
     
     if ((uid == 0) || (uid == AID_SYSTEM))
@@ -88,6 +91,10 @@ int svc_can_register(unsigned uid, uint16_t *name)
             return 1;
 
     return 0;
+#else
+    //TODO: add some kinds of permission check
+    return 1;
+#endif
 }
 
 struct svcinfo 
@@ -138,6 +145,8 @@ void *do_find_service(struct binder_state *bs, uint16_t *s, unsigned len, unsign
 
 //    ALOGI("check_service('%s') ptr = %p\n", str8(s), si ? si->ptr : 0);
     if (si && si->ptr) {
+
+    #if 0   //lihui, removed android allow_isolated check, TODO: add some kinds of simliar check
         if (!si->allow_isolated) {
             // If this service doesn't allow access from isolated processes,
             // then check the uid to see if it is isolated.
@@ -146,6 +155,7 @@ void *do_find_service(struct binder_state *bs, uint16_t *s, unsigned len, unsign
                 return 0;
             }
         }
+    #endif
         return si->ptr;
     } else {
         return 0;

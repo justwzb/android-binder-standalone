@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <string.h>
 
 #include "binder.h"
 
@@ -14,8 +15,13 @@
 
 #define TRACE 0
 
+#if 1
+#define ALOGI(x...) fprintf(stderr, "svcmgr: " x)
+#define ALOGE(x...) fprintf(stderr, "svcmgr: " x)
+#else
 #define LOG_TAG "Binder"
 #include <cutils/log.h>
+#endif
 
 void bio_init_from_txn(struct binder_io *io, struct binder_txn *txn);
 
