@@ -26,3 +26,6 @@ export CMAKE_CXX_FLAGS="-DHAVE_SYS_UIO_H -DHAVE_PTHREADS -DHAVE_ENDIAN_H -DHAVE_
 
 #arm,mips,x86
 export CMAKE_TARGET_ARCH="x86"
+
+#kernel module build path
+export CMAKE_KERNELMODULE_BUILD=/lib/modules/`uname -r`/build
