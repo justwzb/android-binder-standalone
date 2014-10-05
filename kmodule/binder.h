@@ -329,5 +329,9 @@ enum BinderDriverCommandProtocol {
 	 */
 };
 
+//lihui added
+typedef size_t binder_size_t;
+typedef void* binder_uintptr_t;
+
 #endif /* _LINUX_BINDER_H */
 
