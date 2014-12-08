@@ -10,7 +10,7 @@ unset CMAKE_C_FLAGS
 unset CMAKE_CXX_FLAGS
 
 #set cross compiling compilers and options
-#export CMAKE_C_COMPILER="/opt/arm-2012.09/bin/arm-none-linux-gnueabi-gcc-4.7.2"
+#export CMAKE_C_COMPILER=""
 #export CMAKE_CXX_COMPILER=""
 
 #usually all these should be defined
