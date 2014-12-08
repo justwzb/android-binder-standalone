@@ -30,3 +30,9 @@ export CMAKE_TARGET_ARCH="arm"
 
 #kernel module build path(Not Tested)
 export CMAKE_KERNELMODULE_BUILD=/lib/modules/`uname -r`/build
+
+#libs for binder
+export CMAKE_BINDER_LINKLIBS=thread_db
+
+#libs for test client and server
+export CMAKE_TEST_LINKLIBS=supc++

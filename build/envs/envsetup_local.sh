@@ -29,3 +29,9 @@ export CMAKE_TARGET_ARCH="x86"
 
 #kernel module build path
 export CMAKE_KERNELMODULE_BUILD=/lib/modules/`uname -r`/build
+
+#libs for binder
+export CMAKE_BINDER_LINKLIBS=pthread
+
+#libs for test client and server
+export CMAKE_TEST_LINKLIBS=

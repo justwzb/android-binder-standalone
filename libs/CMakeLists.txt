@@ -65,4 +65,4 @@ ADD_LIBRARY(StandaloneBinder SHARED
     ${LIB_Cutils_SRC}
 #    ${LIB_Bionic_SRC}
 )
-TARGET_LINK_LIBRARIES(StandaloneBinder thread_db)
+TARGET_LINK_LIBRARIES(StandaloneBinder $ENV{CMAKE_BINDER_LINKLIBS})
