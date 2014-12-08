@@ -48,7 +48,7 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/libs)
 endif(EXISTS ${PROJECT_SOURCE_DIR}/libs)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/kmodule)
-    ADD_SUBDIRECTORY(kmodule) 
+    #ADD_SUBDIRECTORY(kmodule) 
 endif(EXISTS ${PROJECT_SOURCE_DIR}/kmodule)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/servicemanager)
