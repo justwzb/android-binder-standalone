@@ -32,7 +32,7 @@ export CMAKE_TARGET_ARCH="arm"
 export CMAKE_KERNELMODULE_BUILD=/lib/modules/`uname -r`/build
 
 #libs for binder
-export CMAKE_BINDER_LINKLIBS=thread_db
+export CMAKE_BINDER_LINKLIBS=
 
 #libs for test client and server
 export CMAKE_TEST_LINKLIBS=supc++
