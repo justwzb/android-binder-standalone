@@ -114,6 +114,55 @@ for ctx in sidl_context:
                 //-- begin code for %(funcname)s here, will auoto generated but may change yourself if need --
 """ % {"funcname":ctx.getName()})
 
+        #skip Exception and result first to write output paramters
+
+        #return info
+        result = ctx.getReturn()
+        retTyp = result.getType()
+        retIsPtr = result.isPtr()
+        retStar = "*" if retIsPtr else ""
+        retTags = result.getTags();
+        oneway = "oneway" in retTags
+
+        if not oneway:
+            output("""
+                //skip Exception and result first to write output paramters
+                reply->writeNoException();
+""")
+
+            if retTyp != "void":
+                output("""
+                %(qualifier)s%(typ)s%(star)s _result = (%(qualifier)s%(typ)s%(star)s)0;\
+    """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar} )
+
+                if get_parcelType(retTyp,retTags) != None:
+                    retParcelType = get_parcelType(retTyp,retTags);
+
+                    if not retIsPtr:
+                        output("""
+                reply->write%(parcelType)s(_result); //%(typ)s as return value\
+    """ % { "parcelType":retParcelType,"typ":retTyp} )
+                    else:
+                        output("""
+                #error not support this type of return yet, please add code for '%(name)s' yourself
+    """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
+                elif retTyp == "void":
+                    pass
+                else:
+                    output("""
+                #error not support this type of return yet, please add code for '%(name)s' yourself
+    """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
+
+
+            output("""
+                //skip Exception and result first end
+    """)
+
+        output("""
+                //begin paramters list\
+""")
+
+        #paramters list
         idx = 1
         for arg in ctx.getArguments():
             #output("==="+str(arg)+"===\n")
@@ -141,11 +190,44 @@ for ctx in sidl_context:
                     output("""
                 int _%(name)s_len = data.readInt32(); //read length, only 32bits length support yet
                 %(qualifier)s%(typ)s* %(name)s = NULL;
-                if(_%(name)s_len > 0) {
+                if(_%(name)s_len > 0) {\
+""" % {"qualifier":qualifier,"typ":typ,"name":name})
+
+                    if inflag and not outflag:
+                        output("""
                     Parcel::ReadableBlob _%(name)s_rblob;
                     data.readBlob(_%(name)s_len,&_%(name)s_rblob);
-                    %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_rblob.data();//Fixme: this data can not write, add api in Parcel
-                }
+                    %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_rblob.data();
+""" % {"qualifier":qualifier,"typ":typ,"name":name})
+
+                    elif not inflag and outflag:
+                        output("""
+                    reply->writeInt32(_%(name)s_len);
+                    Parcel::WritableBlob _%(name)s_wblob;
+                    reply->writeBlob(_%(name)s_len,&_%(name)s_wblob);
+                    %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_wblob.data();
+""" % {"qualifier":qualifier,"typ":typ,"name":name})
+
+                    elif inflag and outflag:
+                        output("""
+                    Parcel::ReadableBlob _%(name)s_rblob;
+                    data.readBlob(_%(name)s_len,&_%(name)s_rblob);
+
+                    reply->writeInt32(_%(name)s_len);
+                    Parcel::WritableBlob _%(name)s_wblob;
+                    reply->writeBlob(_%(name)s_len,&_%(name)s_wblob);
+                    %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_wblob.data();
+
+                    memcpy(%(name)s,_%(name)s_rblob.data(),_%(name)s_len);
+""" % {"qualifier":qualifier,"typ":typ,"name":name})
+                    else:
+                        output("""
+                    #error, pointer paramter %(name)s must be either in or output or both!
+""" % {"qualifier":qualifier,"typ":typ,"name":name})
+
+                    #%(name)s = %(qualifier)s(%(typ)s*)_%(name)s_rblob.data();//Fixme: this data can not write, add api in Parcel
+                    
+                    output("""                }
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
             else:
                 output("""
@@ -177,11 +259,12 @@ for ctx in sidl_context:
 """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"calllist":calllist } )
         else:
             output("""
-                %(qualifier)s%(typ)s%(star)s _result = %(name)s( %(calllist)s );
+                _result = %(name)s( %(calllist)s );
 """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"calllist":calllist } )
 
         if not oneway:
             output("""
+                reply->setDataPosition(0); //rewind and correct Exception and return
                 reply->writeNoException(); //fixed check
 """)
 
@@ -202,37 +285,6 @@ for ctx in sidl_context:
                 output("""
                 #error not support this type of return yet, please add code for '%(name)s' yourself
 """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
-
-            idx = 1
-            for arg in ctx.getArguments():
-                tags = arg.getTags()
-                inflag = arg.hasInFlag()
-                outflag = arg.hasOutFlag()
-                typ = arg.getType()
-                isPtr = arg.isPtr()
-                star = "*" if isPtr else ""
-                qualifier = arg.getQualifier()
-                name = arg.getName()
-                if name == "":
-                    name = "_arg"+str(idx)
-                    idx += 1
-
-
-                if isPtr and outflag:
-                    if get_parcelType(typ,tags) != None:
-                        parcelType = get_parcelType(typ,tags);
-                        output("""
-                if(_%(name)s_len > 0) {
-                    reply->writeInt32(_%(name)s_len);
-                    Parcel::WritableBlob _%(name)s_wblob;
-                    reply->writeBlob(_%(name)s_len,&_%(name)s_wblob);
-                    memcpy(_%(name)s_wblob.data(),%(name)s,_%(name)s_len);
-                }
-""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star})
-                    else:
-                        output("""
-                #error not support output paramter %(typ)s %(name)s yet, please add code for '%(name)s' yourself
-""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star})
 
         output("""
                 //-- end code for %(funcname)s here --
@@ -366,16 +418,17 @@ for ctx in sidl_context:
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"parcelType":parcelType})
                 else:
                     output("""
-            //for out only, alloc buffer without copy; for in, alloc and copy
+            //for out only, only write length ; for in, alloc and copy
             if (%(name)s == NULL) {
                 data.writeInt32(-1);
             }
             else {
                 data.writeInt32((int)%(len)s * sizeof(%(typ)s));//write length, only support 32 bits length yet
-                Parcel::WritableBlob _%(name)s_wblob;
-                data.writeBlob(%(len)s,&_%(name)s_wblob);""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
+                """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
                     if inflag:
                         output("""
+                Parcel::WritableBlob _%(name)s_wblob;
+                data.writeBlob(%(len)s * sizeof(%(typ)s),&_%(name)s_wblob);
                 memcpy(_%(name)s_wblob.data(),%(name)s,%(len)s* sizeof(%(typ)s));
             }
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
