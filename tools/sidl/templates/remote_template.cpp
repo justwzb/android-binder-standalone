@@ -22,21 +22,30 @@ s_type_map = {
     "int64_t"               : "Int64",
     "unsigned long long"    : "Int64",
     "uint64_t"              : "Int64",
+
+    "int32"                 : "Int32",
+    "int64"                 : "Int64",
+    "enum"                  : "Int32",
+    "struct"                : "struct",
 }
 def get_parcelType(typ,tags):
     #print("typ="+typ)
     #print("tags="+str(tags))
 
+    #use tag mark first
+    for tag in tags:
+        if s_type_map.has_key(tag):
+            return s_type_map[tag]
+
+    #try to get from typ
     global s_type_map
     if s_type_map.has_key(typ):
         return s_type_map[typ]
 
-    if "int32" in tags:
-        return "Int32"
-    elif "int64" in tags:
-        return "Int64"
-    elif "enum" in tags:
-        return "Int32"
+    #try to get from name
+    if typ[-2:] == "_S" or typ[-3:] == "_ST":
+        #return "struct"
+        return "Int32" #most strut is plat and could deal with Int32, if not please mark it!
     else:
         return None
 py*/
@@ -157,34 +166,41 @@ for ctx in sidl_context:
             if get_parcelType(typ,tags) != None:
                 parcelType = get_parcelType(typ,tags);
 
-                if not isPtr:
+                if parcelType == "struct":
                     output("""
+                #error not support un-plat struct %(name)s yet, please add code yourself
+                #if your struct is plat, do not mark it as a struct
+""" % {"qualifier":qualifier,"typ":typ,"name":name,"parcelType":parcelType,"len":len})
+                else:
+
+                    if not isPtr:
+                        output("""
                 %(qualifier)s%(typ)s %(name)s = (%(qualifier)s%(typ)s)data.read%(parcelType)s();  //%(typ)s as input paramter
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"parcelType":parcelType})
-                else:
-                    output("""
+                    else:
+                        output("""
                 int _%(name)s_len = data.readInt32(); //read length, only 32bits length support yet
                 %(qualifier)s%(typ)s* %(name)s = NULL;
                 if(_%(name)s_len > 0) {\
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
 
-                    if inflag and not outflag:
-                        output("""
+                        if inflag and not outflag:
+                            output("""
                     Parcel::ReadableBlob _%(name)s_rblob;
                     data.readBlob(_%(name)s_len,&_%(name)s_rblob);
                     %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_rblob.data();
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
 
-                    elif not inflag and outflag:
-                        output("""
+                        elif not inflag and outflag:
+                            output("""
                     reply->writeInt32(_%(name)s_len);
                     Parcel::WritableBlob _%(name)s_wblob;
                     reply->writeBlob(_%(name)s_len,&_%(name)s_wblob);
                     %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_wblob.data();
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
 
-                    elif inflag and outflag:
-                        output("""
+                        elif inflag and outflag:
+                            output("""
                     Parcel::ReadableBlob _%(name)s_rblob;
                     data.readBlob(_%(name)s_len,&_%(name)s_rblob);
 
@@ -195,19 +211,17 @@ for ctx in sidl_context:
 
                     memcpy(%(name)s,_%(name)s_rblob.data(),_%(name)s_len);
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
-                    else:
-                        output("""
+                        else:
+                            output("""
                     #error, pointer paramter %(name)s must be either in or output or both!
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
 
-                    #%(name)s = %(qualifier)s(%(typ)s*)_%(name)s_rblob.data();//Fixme: this data can not write, add api in Parcel
-                    
-                    output("""                }
+                        output("""                }
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
             else:
                 output("""
-                #error not support this type of paramter %(qualifier)s%(typ)s %(name)s yet, please add code yourself
-""" % {"qualifier":qualifier,"typ":typ,"name":name,"parcelType":parcelType})
+            #error not support this type of paramter %(qualifier)s%(typ)s %(name)s yet, please add code yourself
+""" % {"qualifier":qualifier,"typ":typ,"name":name})
 
         #gen arglist for func call
         calllist = ""
@@ -382,12 +396,18 @@ for ctx in sidl_context:
             if get_parcelType(typ,tags) != None:
                 parcelType = get_parcelType(typ,tags);
 
-                if not isPtr:
+                if parcelType == "struct":
                     output("""
+            #error not support un-plat struct %(name)s yet, please add code yourself
+            #if your struct is plat, do not mark it as a struct
+""" % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
+                else:
+                    if not isPtr:
+                        output("""
             data.write%(parcelType)s(%(name)s);  //%(typ)s as input paramter
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"parcelType":parcelType})
-                else:
-                    output("""
+                    else:
+                        output("""
             //for out only, only write length ; for in, alloc and copy
             if (%(name)s == NULL) {
                 data.writeInt32(-1);
@@ -395,15 +415,15 @@ for ctx in sidl_context:
             else {
                 data.writeInt32((int)%(len)s * sizeof(%(typ)s));//write length, only support 32 bits length yet
                 """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
-                    if inflag:
-                        output("""
+                        if inflag:
+                            output("""
                 Parcel::WritableBlob _%(name)s_wblob;
                 data.writeBlob(%(len)s * sizeof(%(typ)s),&_%(name)s_wblob);
                 memcpy(_%(name)s_wblob.data(),%(name)s,%(len)s* sizeof(%(typ)s));
             }
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
-                    else:
-                        output("""
+                        else:
+                            output("""
             }
 """)
             else:

@@ -1,3 +1,7 @@
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/sampleTest)
     ADD_SUBDIRECTORY(sampleTest)
 endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/sampleTest)
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/structTest)
+    ADD_SUBDIRECTORY(structTest)
+endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/structTest)

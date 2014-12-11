@@ -1,0 +1,5 @@
+#include "struct_module.h"
+
+int struct_api_1(STRUCT_S{in}{len:1}* pin,STRUCT_S{out}{len:1}* pout);
+
+int struct_api_l(STRUCT_S{in}{len:len}* pin,STRUCT_S{out}{len:len}* pout,int len);
