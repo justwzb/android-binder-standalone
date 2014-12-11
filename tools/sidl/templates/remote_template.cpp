@@ -35,6 +35,8 @@ def get_parcelType(typ,tags):
         return "Int32"
     elif "int64" in tags:
         return "Int64"
+    elif "enum" in tags:
+        return "Int32"
     else:
         return None
 py*/
@@ -128,35 +130,8 @@ for ctx in sidl_context:
             output("""
                 //skip Exception and result first to write output paramters
                 reply->writeNoException();
-""")
-
-            if retTyp != "void":
-                output("""
-                %(qualifier)s%(typ)s%(star)s _result = (%(qualifier)s%(typ)s%(star)s)0;\
-    """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar} )
-
-                if get_parcelType(retTyp,retTags) != None:
-                    retParcelType = get_parcelType(retTyp,retTags);
-
-                    if not retIsPtr:
-                        output("""
-                reply->write%(parcelType)s(_result); //%(typ)s as return value\
-    """ % { "parcelType":retParcelType,"typ":retTyp} )
-                    else:
-                        output("""
-                #error not support this type of return yet, please add code for '%(name)s' yourself
-    """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
-                elif retTyp == "void":
-                    pass
-                else:
-                    output("""
-                #error not support this type of return yet, please add code for '%(name)s' yourself
-    """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
-
-
-            output("""
                 //skip Exception and result first end
-    """)
+""")
 
         output("""
                 //begin paramters list\
@@ -259,15 +234,10 @@ for ctx in sidl_context:
 """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"calllist":calllist } )
         else:
             output("""
-                _result = %(name)s( %(calllist)s );
+                %(qualifier)s%(typ)s%(star)s _result = %(name)s( %(calllist)s );
 """ % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"calllist":calllist } )
 
         if not oneway:
-            output("""
-                reply->setDataPosition(0); //rewind and correct Exception and return
-                reply->writeNoException(); //fixed check
-""")
-
             if get_parcelType(retTyp,retTags) != None:
                 retParcelType = get_parcelType(retTyp,retTags);
 
@@ -450,21 +420,6 @@ for ctx in sidl_context:
             output("""
             if(reply.readExceptionCode() == 0) {//fix check
 """)
-            if retTyp != "void":
-                pass
-            elif get_parcelType(retTyp,retTags) != None:
-                retParcelType = get_parcelType(typ,tags);
-                if not retIsPtr:
-                    output("""
-                _result = reply.read%(parcelType)s();//int as return value
-""" % {"parcelType":retParcelType})
-                else:
-                    output("""
-                #error not support generate code for int* return, please add code yourself
-""")
-            else:
-                output(""" #error not support this type of return yet, please add code for '%(name)s' yourself
-""" % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
 
             #output paramters
             idx = 1
@@ -487,15 +442,32 @@ for ctx in sidl_context:
                         parcelType = get_parcelType(typ,tags);
                         output("""
                 if (%(name)s != NULL) {
-                    int _%(name)s_len = data.readInt32(); //read length, only 32bits length support yet
+                    int _%(name)s_len = reply.readInt32(); //read length, only 32bits length support yet
                     Parcel::ReadableBlob _%(name)s_rblob;
-                    data.readBlob(_%(name)s_len,&_%(name)s_rblob);
+                    reply.readBlob(_%(name)s_len,&_%(name)s_rblob);
                     memcpy(%(name)s,_%(name)s_rblob.data(),_%(name)s_len);
                 }""" % {"qualifier":qualifier,"typ":typ,"name":name})
                     else:
                         output("""
                 #error not support this type of output paramter %(qualifier)s%(typ)s %(name)s yet, please add code yourself
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
+
+            if retTyp == "void":
+                pass
+            elif get_parcelType(retTyp,retTags) != None:
+                retParcelType = get_parcelType(typ,tags);
+                if not retIsPtr:
+                    output("""
+                _result = reply.read%(parcelType)s();//int as return value
+""" % {"parcelType":retParcelType})
+                else:
+                    output("""
+                #error not support generate code for int* return, please add code yourself
+""")
+            else:
+                output(""" #error not support this type of return yet, please add code for '%(name)s' yourself
+""" % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
+
 
             output("""
             }""")
