@@ -12,8 +12,7 @@ int main(int arg, char** argv) {
 
 #elif defined(BINDER_CLIENT)
 
-int main(int arg, char** argv) {
-
+static void testint1(void) {
     int in = 1;
     int pin = 2;
     int pout = 3;
@@ -21,6 +20,25 @@ int main(int arg, char** argv) {
 
     int ret = sample_int_prt_1(in,&pin,&pout,&pinout);
     printf("test sample_int_prt_1 in=%d,pin=%d,pout=%d,pinout=%d,ret=%d\n",in,pin,pout,pinout,ret);
+}
+
+static void testint16l(void) {
+
+	uint16_t in = 1;
+	uint16_t pin[2] = {2,3};
+	uint16_t pout[2] = {4,5};
+	uint16_t pinout[2] = {5,6};
+	
+	uint16_t ret = sample_uint16_t_prt_len(in,pin,pout,pinout,2);
+	
+	printf("test sample_uint16_t_prt_len in=%d,pin=%d,%d,pout=%d,%d,pinout=%d,%d ret=%d\n",in,pin[0],pin[1],pout[0],pout[1],pinout[0],pinout[1],ret);
+	
+}
+
+int main(int arg, char** argv) {
+
+	testint1();
+	//testint16l();
 }
 
 #else
