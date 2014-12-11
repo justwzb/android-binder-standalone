@@ -46,6 +46,8 @@ def get_parcelType(typ,tags):
     if typ[-2:] == "_S" or typ[-3:] == "_ST":
         #return "struct"
         return "Int32" #most strut is plat and could deal with Int32, if not please mark it!
+    elif typ[-2:] == "_E" or typ[-3:] == "_EM":
+        return "Int32" #enum as Int32
     else:
         return None
 py*/
@@ -262,13 +264,13 @@ for ctx in sidl_context:
                 else:
                     output("""
                 #error not support this type of return yet, please add code for '%(name)s' yourself
-""" % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
+""" % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar} )
             elif retTyp == "void":
                 pass
             else:
                 output("""
                 #error not support this type of return yet, please add code for '%(name)s' yourself
-""" % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
+""" % {"qualifier":result.getQualifier(),"typ":retTyp,"name":ctx.getName(),"star":retStar} )
 
         output("""
                 //-- end code for %(funcname)s here --
@@ -478,7 +480,7 @@ for ctx in sidl_context:
                 retParcelType = get_parcelType(typ,tags);
                 if not retIsPtr:
                     output("""
-                _result = reply.read%(parcelType)s();//int as return value
+                _result = (typeof(_result))reply.read%(parcelType)s();//int as return value
 """ % {"parcelType":retParcelType})
                 else:
                     output("""

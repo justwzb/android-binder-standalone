@@ -3,3 +3,7 @@
 int struct_api_1(STRUCT_S{in}{len:1}* pin,STRUCT_S{out}{len:1}* pout);
 
 int struct_api_l(STRUCT_S{in}{len:len}* pin,STRUCT_S{out}{len:len}* pout,int len);
+
+ENUM_EM enum_api_1(ENUM_EM in,ENUM_EM{in}{len:1}* pin,ENUM_EM{out}{len:1}* pout);
+
+ENUM_EM enum_api_l(ENUM_EM in,ENUM_EM{in}{len:len}* pin,ENUM_EM{out}{len:len}* pout,int len);

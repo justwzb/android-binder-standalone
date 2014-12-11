@@ -34,6 +34,10 @@ int struct_api_1(STRUCT_S* pin,STRUCT_S* pout);
 
 int struct_api_l(STRUCT_S* pin,STRUCT_S* pout,int len);
 
+ENUM_EM enum_api_1(ENUM_EM in,ENUM_EM* pin,ENUM_EM* pout);
+
+ENUM_EM enum_api_l(ENUM_EM in,ENUM_EM* pin,ENUM_EM* pout,int len);
+
 
 #ifdef __cplusplus
 }
