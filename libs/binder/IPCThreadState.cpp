@@ -662,17 +662,16 @@ void IPCThreadState::expungeHandle(int32_t handle, IBinder* binder)
 status_t IPCThreadState::requestDeathNotification(int32_t handle, BpBinder* proxy)
 {
     mOut.writeInt32(BC_REQUEST_DEATH_NOTIFICATION);
-    //change int32_t to long. than change to int32, android is not readly for 64bits!
-    mOut.writeInt32((long)handle);
-    mOut.writeInt32((long)proxy);
+    mOut.writeInt32((int32_t)handle);
+    mOut.writeInt32((int32_t)proxy);
     return NO_ERROR;
 }
 
 status_t IPCThreadState::clearDeathNotification(int32_t handle, BpBinder* proxy)
 {
     mOut.writeInt32(BC_CLEAR_DEATH_NOTIFICATION);
-    mOut.writeInt32((long)handle);
-    mOut.writeInt32((long)proxy);
+    mOut.writeInt32((int32_t)handle);
+    mOut.writeInt32((int32_t)proxy);
     return NO_ERROR;
 }
 
@@ -962,8 +961,8 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
             obj->printRefs();
         }
         mOut.writeInt32(BC_ACQUIRE_DONE);
-        mOut.writeInt32((long)refs);
-        mOut.writeInt32((long)obj);
+        mOut.writeInt32((int32_t)refs);
+        mOut.writeInt32((int32_t)obj);
         break;
         
     case BR_RELEASE:
@@ -984,8 +983,8 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
         obj = (BBinder*)mIn.readInt32();
         refs->incWeak(mProcess.get());
         mOut.writeInt32(BC_INCREFS_DONE);
-        mOut.writeInt32((long)refs);
-        mOut.writeInt32((long)obj);
+        mOut.writeInt32((int32_t)refs);
+        mOut.writeInt32((int32_t)obj);
         break;
         
     case BR_DECREFS:
@@ -1011,7 +1010,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
                        refs, obj, refs->refBase());
             
             mOut.writeInt32(BC_ACQUIRE_RESULT);
-            mOut.writeInt32((long)success);
+            mOut.writeInt32((int32_t)success);
         }
         break;
     
@@ -1107,7 +1106,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
             BpBinder *proxy = (BpBinder*)mIn.readInt32();
             proxy->sendObituary();
             mOut.writeInt32(BC_DEAD_BINDER_DONE);
-            mOut.writeInt32((long)proxy);
+            mOut.writeInt32((int32_t)proxy);
         } break;
         
     case BR_CLEAR_DEATH_NOTIFICATION_DONE:
@@ -1167,7 +1166,7 @@ void IPCThreadState::freeBuffer(Parcel* parcel, const uint8_t* data, size_t data
     if (parcel != NULL) parcel->closeFileDescriptors();
     IPCThreadState* state = self();
     state->mOut.writeInt32(BC_FREE_BUFFER);
-    state->mOut.writeInt32((long)data);
+    state->mOut.writeInt32((int32_t)data);
 }
 
 }; // namespace android
