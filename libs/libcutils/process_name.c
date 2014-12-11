@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#undef HAVE_ANDROID_OS  //lihui: this module can not work on android mode
+
 #include <stdlib.h>
 #include <string.h>
 #include <cutils/process_name.h>

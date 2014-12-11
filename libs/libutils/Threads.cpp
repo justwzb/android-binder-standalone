@@ -29,6 +29,8 @@
 #include <assert.h>
 #include <unistd.h>
 
+#undef HAVE_ANDROID_OS  //lihui: this module can not work on android mode
+
 #if defined(HAVE_PTHREADS)
 # include <pthread.h>
 # include <sched.h>
