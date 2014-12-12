@@ -221,7 +221,7 @@ public:
                     Parcel::ReadableBlob _pout_rblob;
                     reply.readBlob(pout->len,&_pout_rblob);
 
-                    pout->buf = _pout_rblob.data();//not work, _pin_wblob.data() will be release on return, only demo here
+                    pout->buf = (char*)_pout_rblob.data();//not work, _pin_wblob.data() will be release on return, only demo here
 
                     pout->buf = NULL;
                 }
