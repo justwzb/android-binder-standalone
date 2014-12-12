@@ -58,3 +58,26 @@ ENUM_EM enum_api_l(ENUM_EM in,ENUM_EM* pin,ENUM_EM* pout,int len){
 
     return ret;
 }
+
+static char s_buf[8];
+int unflag_struct_api(STRUCT_UNFLAT_S* pin,STRUCT_UNFLAT_S* pout) {
+    printf("unflag_struct_api\n");
+    if(pin != NULL && pOut != NULL) {
+        printf("%d %d %d \n",pin->i,pin->j,pin->len);
+
+        int i;
+        for(i=0;i<pin->len;i++) {
+            printf("%d ",pin->buf);
+        }
+        printf("\n");
+
+        pout->i=1;
+        pout->j=2;
+        pout->len=sizeof(s_buf);
+        pout->buf = s_buf;
+    }
+
+    return 0;
+}
+
+

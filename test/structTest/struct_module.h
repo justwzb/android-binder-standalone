@@ -28,6 +28,13 @@ typedef enum {
     EM_MAX
 }ENUM_EM;
 
+typedef struct {
+    int i;
+    int j;
+    int len;
+    char* buf;
+}STRUCT_UNFLAT_S;
+
 typedef struct _HANDLE_T HANDLE_T;
 
 int struct_api_1(STRUCT_S* pin,STRUCT_S* pout);
@@ -37,6 +44,8 @@ int struct_api_l(STRUCT_S* pin,STRUCT_S* pout,int len);
 ENUM_EM enum_api_1(ENUM_EM in,ENUM_EM* pin,ENUM_EM* pout);
 
 ENUM_EM enum_api_l(ENUM_EM in,ENUM_EM* pin,ENUM_EM* pout,int len);
+
+int unflag_struct_api(STRUCT_UNFLAT_S* pin,STRUCT_UNFLAT_S* pout);
 
 
 #ifdef __cplusplus

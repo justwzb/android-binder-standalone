@@ -1,0 +1,3 @@
+#include "struct_module.h"
+
+int unflag_struct_api(STRUCT_UNFLAT_S{in}{len:1}{struct}* pin,STRUCT_UNFLAT_S{out}{len:1}{struct}* pout);
