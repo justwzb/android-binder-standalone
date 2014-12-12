@@ -29,6 +29,7 @@ s_type_map = {
     "struct"                : "struct",
 }
 def get_parcelType(typ,tags):
+    global s_type_map
     #print("typ="+typ)
     #print("tags="+str(tags))
 
@@ -38,7 +39,6 @@ def get_parcelType(typ,tags):
             return s_type_map[tag]
 
     #try to get from typ
-    global s_type_map
     if s_type_map.has_key(typ):
         return s_type_map[typ]
 
