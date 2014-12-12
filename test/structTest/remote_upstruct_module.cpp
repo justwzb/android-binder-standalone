@@ -85,7 +85,7 @@ public:
 
                     Parcel::ReadableBlob _pin_rblob;
                     data.readBlob(pin->len,&_pin_rblob);
-                    pin->buf = _pin_rblob.data();
+                    pin->buf = (char*)_pin_rblob.data();
                 }
 
                 //pout
@@ -104,12 +104,12 @@ public:
 
                 //pout
                 if(_pin_count > 0) {
-                    data.writeInt32(pout->i);
-                    data.writeInt32(pout->j);
-                    data.writeInt32(pout->len);
+                    reply->writeInt32(pout->i);
+                    reply->writeInt32(pout->j);
+                    reply->writeInt32(pout->len);
 
                     Parcel::WritableBlob _pout_wblob;
-                    data.writeBlob(pout->len,&_pout_wblob);
+                    reply->writeBlob(pout->len,&_pout_wblob);
                     memcpy(_pout_wblob.data(),pout->buf,pout->len);
                 }
 

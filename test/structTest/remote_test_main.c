@@ -5,8 +5,10 @@
 #if defined(BINDER_SERVICE)
 
 #include "remote_struct_module.h"
+#include "remote_upstruct_module.h"
 
 int main(int arg, char** argv) {
+    remote_upstruct_module_service_add();
     return remote_struct_module_service_serv();
 }
 
