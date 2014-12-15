@@ -495,13 +495,13 @@ for ctx in sidl_context:
             }""")
         output("""
         }catch(...) {
-            ALOGW(SERVICE_NAME"_client sample_base_api error");
+            ALOGW(SERVICE_NAME"_client %(name)s error");
         }
 
-        %s
-        /*-- add you code for sample_base_api here --*/
+        %(return)s
+        /*-- add you code for %(name)s here --*/
     }
-""" % ("return _result;" if retTyp != "void" else ""))
+""" % {"return":"return _result;" if retTyp != "void" else "","name":ctx.getName()})
 
 output("""};
 
