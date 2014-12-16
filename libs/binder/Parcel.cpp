@@ -819,6 +819,34 @@ status_t Parcel::writeBlob(size_t len, WritableBlob* outBlob)
     return status;
 }
 
+status_t Parcel::writeRBBlob(size_t len, WritableBlob* outBlob)
+{
+    status_t status;
+
+    ALOGV("writeRBBlob: write to ashmem");
+    int fd = ashmem_create_region("Parcel Blob", len);
+    if (fd < 0) return NO_MEMORY;
+
+    int result = ashmem_set_prot_region(fd, PROT_READ | PROT_WRITE);
+    if (result < 0) {
+        status = result;
+    } else {
+        void* ptr = ::mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        if (ptr == MAP_FAILED) {
+            status = -errno;
+        } else {
+            status = writeFileDescriptor(fd, true /*takeOwnership*/);
+            if (!status) {
+                outBlob->init(true /*mapped*/, ptr, len);
+                return NO_ERROR;
+            }
+        }
+        ::munmap(ptr, len);
+    }
+    ::close(fd);
+    return status;
+}
+
 status_t Parcel::write(const FlattenableHelperInterface& val)
 {
     status_t err;
@@ -1191,6 +1219,19 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
     if (fd == int(BAD_TYPE)) return BAD_VALUE;
 
     void* ptr = ::mmap(NULL, len, PROT_READ, MAP_SHARED, fd, 0);
+    if (!ptr) return NO_MEMORY;
+
+    outBlob->init(true /*mapped*/, ptr, len);
+    return NO_ERROR;
+}
+
+status_t Parcel::readRBBlob(size_t len, WritableBlob* outBlob)
+{
+    ALOGV("readBlob: read from ashmem");
+    int fd = readFileDescriptor();
+    if (fd == int(BAD_TYPE)) return BAD_VALUE;
+
+    void* ptr = ::mmap(NULL, len, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
     if (!ptr) return NO_MEMORY;
 
     outBlob->init(true /*mapped*/, ptr, len);

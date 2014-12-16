@@ -132,6 +132,9 @@ public:
     // The caller should call release() on the blob after writing its contents.
     status_t            writeBlob(size_t len, WritableBlob* outBlob);
 
+    // lihui added, a read and write blob
+	status_t			writeRBBlob(size_t len, WritableBlob* outBlob);
+
     status_t            writeObject(const flat_binder_object& val, bool nullMetaData);
 
     // Like Parcel.java's writeNoException().  Just writes a zero int32.
@@ -188,6 +191,9 @@ public:
     // Reads a blob from the parcel.
     // The caller should call release() on the blob after reading its contents.
     status_t            readBlob(size_t len, ReadableBlob* outBlob) const;
+
+    // lihui added, a read and write blob
+	status_t            readRBBlob(size_t len, WritableBlob* outBlob) ;
 
     const flat_binder_object* readObject(bool nullMetaData) const;
 
