@@ -1,0 +1,28 @@
+#include "matrix_ringbuf.h"
+
+
+matrix_ringbuf_handle matrix_ringbuf_init(unsigned int bufsize);
+
+unsigned int matrix_ringbuf_in(matrix_ringbuf_handle handle, unsigned char{in}{len:size}* buf, unsigned int size);
+
+unsigned int matrix_ringbuf_out(matrix_ringbuf_handle handle, unsigned char{out}{len:size}* buf, unsigned int size);
+
+unsigned int matrix_ringbuf_aquireIn(matrix_ringbuf_handle handle, unsigned char{in}{len:1}** buf);
+
+unsigned int matrix_ringbuf_aquireOut(matrix_ringbuf_handle handle, const unsigned char{out}{len:1}** buf);
+
+unsigned int matrix_ringbuf_confirmAquireIn(matrix_ringbuf_handle handle, unsigned int size);
+
+unsigned int matrix_ringbuf_confirmAquireOut(matrix_ringbuf_handle handle, unsigned int size);
+
+unsigned int matrix_ringbuf_skip(matrix_ringbuf_handle handle, unsigned int size);
+
+unsigned int matrix_ringbuf_getDataSize(matrix_ringbuf_handle handle, unsigned int size);
+
+unsigned int matrix_ringbuf_getFreeSize(matrix_ringbuf_handle handle);
+
+unsigned int matrix_ringbuf_rewind(matrix_ringbuf_handle handle, unsigned int size);
+
+int matrix_ringbuf_reset(matrix_ringbuf_handle handle);
+
+int matrix_ringbuf_exit(matrix_ringbuf_handle handle) ;
