@@ -42,10 +42,13 @@ int main(int arg, char** argv) {
 
 
 	const unsigned char* outbuf;
-	unsigned int result = matrix_ringbuf_aquireOut(handle,&outbuf);
+	size = matrix_ringbuf_aquireOut(handle,&outbuf);
 
-	printf("Main, matrix_ringbuf_aquireOut,result=%d\n",result);
+	printf("Main, matrix_ringbuf_aquireOut,size=%d\n",size);
 	printf("Main, matrix_ringbuf_aquireOut,outbuf=%s\n",outbuf);
+
+	int ret = matrix_ringbuf_exit(handle);
+	printf("Main, matrix_ringbuf_exit,ret=%d\n",ret);
 	return 0;
 }
 
