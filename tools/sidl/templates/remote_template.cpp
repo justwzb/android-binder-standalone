@@ -313,7 +313,7 @@ class %=sidl_basename%_client
 {  
 private:
     static %=sidl_basename%_client* _instance;
-    sp<IBinder> _binder;
+    sp<IBinder> _binder = NULL;
 
     %=sidl_basename%_client() {
         ALOGV(SERVICE_NAME"_client create\n");
@@ -372,8 +372,17 @@ for ctx in sidl_context:
 
         if retTyp != "void":
             output("""
-        %(qualifier)s%(typ)s%(star)s _result;\
+        %(qualifier)s%(typ)s%(star)s _result;
+        if(_binder == NULL) {
+            return _result;
+        }
 """ % {"qualifier":retQualifier ,"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
+        else:
+            output("""
+        if(_binder == NULL) {
+            return;
+        }
+""")
 
         output("""
         try {
