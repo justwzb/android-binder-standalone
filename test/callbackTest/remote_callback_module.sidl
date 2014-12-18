@@ -1,0 +1,7 @@
+#include "callback_module.h"
+
+int cb_add(cb_callback cb);
+
+int cb_remove(cb_callback cb);
+
+int cb_invoke(int p);

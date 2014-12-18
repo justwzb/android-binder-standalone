@@ -9,3 +9,7 @@ endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/structTest)
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bufferTest)
     ADD_SUBDIRECTORY(bufferTest)
 endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bufferTest)
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/callbackTest)
+    ADD_SUBDIRECTORY(callbackTest)
+endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/callbackTest)
