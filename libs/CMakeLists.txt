@@ -58,11 +58,18 @@ SET(LIB_Bionic_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/bionic/libc/string/strlcpy.c
 )
 
+#sbinder, code added in this project
+SET(LIB_SBINDER_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/sbinder/RemoteCallbackList.cpp
+)
+
+
 ADD_LIBRARY(StandaloneBinder SHARED 
     ${LIB_Binder_SRC}
     ${LIB_Log_SRC}
     ${LIB_Utils_SRC}
     ${LIB_Cutils_SRC}
 #    ${LIB_Bionic_SRC}
+    ${LIB_SBINDER_SRC}
 )
 TARGET_LINK_LIBRARIES(StandaloneBinder $ENV{CMAKE_BINDER_LINKLIBS})
