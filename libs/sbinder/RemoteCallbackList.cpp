@@ -147,6 +147,7 @@ sp<IBinder> RemoteCallbackList::getBroadcastItem(int index) {
         return _activeCBs[index]->_binder;
     }
 
+    ALOGW("%s out of border",__FUNCTION__);
     return NULL;
 }
 
@@ -158,6 +159,7 @@ void* RemoteCallbackList::getBroadcastCookie(int index) {
         return _activeCBs[index]->_cookie;
     }
 
+    ALOGW("%s out of border",__FUNCTION__);
     return NULL;
 }
 

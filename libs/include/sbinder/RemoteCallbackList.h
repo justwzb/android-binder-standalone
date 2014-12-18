@@ -19,6 +19,7 @@ class RemoteCallbackList : public virtual RefBase {
 
 public:
     RemoteCallbackList();
+    virtual ~RemoteCallbackList();
 
     bool registerCallback(sp<IBinder> binder,void* cookie);
     bool unregisterCallback(sp<IBinder> binder);
@@ -34,8 +35,6 @@ public:
 
     virtual void onCallbackDied(sp<IBinder> binder,void* cookie) {}
 
-protected:
-    virtual ~RemoteCallbackList();
 
 private:
     Mutex _mutex;
