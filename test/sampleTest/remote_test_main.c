@@ -5,9 +5,12 @@
 #if defined(BINDER_SERVICE)
 
 #include "remote_sample_module.h"
+#include "service_manager.h"
 
 int main(int arg, char** argv) {
-    return remote_sample_module_service_serv();
+    remote_sample_module_service_add();
+
+    return ServiceManager_loop();
 }
 
 #elif defined(BINDER_CLIENT)

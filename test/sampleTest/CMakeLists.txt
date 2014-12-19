@@ -1,6 +1,9 @@
 FIND_PACKAGE(StandaloneBinder REQUIRED)
 INCLUDE_DIRECTORIES(${StandaloneBinder_INCLUDE_DIR})
 
+FIND_PACKAGE(ServiceManager REQUIRED)
+INCLUDE_DIRECTORIES(${ServiceManager_INCLUDE_DIR})
+
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
 FIND_PACKAGE(Sidl REQUIRED)
@@ -32,7 +35,8 @@ set(SAMPLETEST_SRC_SERVICE
 ADD_EXECUTABLE(sampleTestService ${SAMPLETEST_SRC_SERVICE})
 set_target_properties(sampleTestService PROPERTIES COMPILE_DEFINITIONS "BINDER_SERVICE")
 ADD_DEPENDENCIES(sampleTestService StandaloneBinder)
-TARGET_LINK_LIBRARIES(sampleTestService StandaloneBinder $ENV{CMAKE_TEST_LINKLIBS})
+ADD_DEPENDENCIES(libservicemanager StandaloneBinder)
+TARGET_LINK_LIBRARIES(sampleTestService StandaloneBinder libservicemanager $ENV{CMAKE_TEST_LINKLIBS})
 
 #Client for sampleTest
 set(SAMPLETEST_SRC_CLIENT

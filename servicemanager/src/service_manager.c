@@ -279,7 +279,15 @@ int svcmgr_handler(struct binder_state *bs,
     return 0;
 }
 
+#if defined(SM_MAIN)
 int main(int argc, char **argv)
+#elif defined(SM_LIB)
+#include "service_manager.h"
+
+int ServiceManager_loop(void)
+#else
+ #error Must define SM_MAIN or SM_LIB
+#endif
 {
     struct binder_state *bs;
     void *svcmgr = BINDER_SERVICE_MANAGER;
