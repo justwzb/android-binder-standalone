@@ -20,7 +20,7 @@ static void dump(char* prmot,STRUCT_S* p) {
 }
 
 static void dump1(char* prmot,STRUCT_UNFLAT_S* p) {
-    printf("[%s]i=%d j=%d len=%d\n",prmot,p->i,p->j,p->len,p->buf[0],p->buf[1],p->buf[sizeof(p->buf)-1]);
+    printf("[%s]i=%d j=%d len=%d\n",prmot,p->i,p->j,p->len);
 
     if(p->buf != NULL) {
         printf("buf=0x%x 0x%x ... 0x%x",p->buf[0],p->buf[1],p->buf[sizeof(p->buf)-1]);
@@ -65,7 +65,7 @@ static void testEnum(void) {
 }
 
 static void testupStruct() {
-    char inbuf[8];
+    char inbuf[8]="abcdefghij";
     STRUCT_UNFLAT_S pin;
     pin.i = 1;
     pin.j = 2;
