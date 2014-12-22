@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-///< run service manager, never return.
-int ServiceManager_loop(void);
+///< run service manager, start a thread,has return.
+int ServiceManager_start(void);
 
 #ifdef __cplusplus
 }

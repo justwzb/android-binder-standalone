@@ -279,15 +279,8 @@ int svcmgr_handler(struct binder_state *bs,
     return 0;
 }
 
-#if defined(SM_MAIN)
-int main(int argc, char **argv)
-#elif defined(SM_LIB)
-#include "service_manager.h"
 
-int ServiceManager_loop(void)
-#else
- #error Must define SM_MAIN or SM_LIB
-#endif
+int _serviceManager_loop(void)
 {
     struct binder_state *bs;
     void *svcmgr = BINDER_SERVICE_MANAGER;
@@ -303,3 +296,30 @@ int ServiceManager_loop(void)
     binder_loop(bs, svcmgr_handler);
     return 0;
 }
+
+
+#if defined(SM_MAIN)
+int main(int argc, char **argv){
+	return _serviceManager_loop();
+}
+
+#elif defined(SM_LIB)
+
+#include "service_manager.h"
+#include <stdio.h>
+#include <pthread.h>
+
+int ServiceManager_start(void){
+	pthread_t id;
+	int ret = pthread_create(&id,NULL,(void *)_serviceManager_loop,NULL);
+	if(ret != 0){
+		return -1;
+	}
+	pthread_join(id,NULL);
+	return 0;
+}
+#else
+ #error Must define SM_MAIN or SM_LIB
+#endif
+
+

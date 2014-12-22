@@ -8,9 +8,8 @@
 #include "service_manager.h"
 
 int main(int arg, char** argv) {
-    remote_sample_module_service_add();
-
-    return ServiceManager_loop();
+	ServiceManager_start();
+    return remote_sample_module_service_serv();
 }
 
 #elif defined(BINDER_CLIENT)

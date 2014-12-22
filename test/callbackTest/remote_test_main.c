@@ -3,9 +3,11 @@
 #if defined(BINDER_SERVICE)
 
 #include "remote_callback_module.h"
+#include "service_manager.h"
 
 int main(int arg, char** argv) {
-    return remote_callback_module_service_add();
+	ServiceManager_start();
+    return remote_callback_module_service_serv();
 }
 
 #elif defined(BINDER_CLIENT)

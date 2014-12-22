@@ -3,8 +3,10 @@
 #if defined(BINDER_SERVICE)
 
 #include "remote_buffer_module.h"
+#include "service_manager.h"
 
 int main(int arg, char** argv) {
+	ServiceManager_start();
     return remote_buffer_module_service_serv();
 }
 

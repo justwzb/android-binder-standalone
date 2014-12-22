@@ -1,6 +1,8 @@
 FIND_PACKAGE(StandaloneBinder REQUIRED)
 INCLUDE_DIRECTORIES(${StandaloneBinder_INCLUDE_DIR})
 
+FIND_PACKAGE(ServiceManager REQUIRED)
+INCLUDE_DIRECTORIES(${ServiceManager_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
 #SERVER for bufferTest
@@ -13,7 +15,8 @@ set(SAMPLE_BUFFERTEST_SRC_SERVICE
 ADD_EXECUTABLE(bufferTestService ${SAMPLE_BUFFERTEST_SRC_SERVICE})
 set_target_properties(bufferTestService PROPERTIES COMPILE_DEFINITIONS "BINDER_SERVICE")
 ADD_DEPENDENCIES(bufferTestService StandaloneBinder)
-TARGET_LINK_LIBRARIES(bufferTestService StandaloneBinder $ENV{CMAKE_TEST_LINKLIBS})
+ADD_DEPENDENCIES(libservicemanager StandaloneBinder)
+TARGET_LINK_LIBRARIES(bufferTestService StandaloneBinder libservicemanager $ENV{CMAKE_TEST_LINKLIBS})
 
 #CLIENT for bufferTest
 set(SAMPLE_BUFFERTEST_SRC_CLIENT
