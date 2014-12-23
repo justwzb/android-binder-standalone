@@ -3555,7 +3555,7 @@ static const struct file_operations binder_fops = {
 
 static struct miscdevice binder_miscdev = {
 	.minor = MISC_DYNAMIC_MINOR,
-	.name = "binder",
+	.name = "sbinder",
 	.fops = &binder_fops
 };
 
@@ -3607,7 +3607,12 @@ static int __init binder_init(void)
 	return ret;
 }
 
-device_initcall(binder_init);
+static void binder_exit(){
+	printk(KERN_ALERT"sbinder module exit ------------------\n");	
+}
+
+module_init(binder_init);
+module_exit(binder_exit);
 
 #define CREATE_TRACE_POINTS
 #include "binder_trace.h"
