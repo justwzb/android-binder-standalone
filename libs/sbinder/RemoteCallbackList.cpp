@@ -32,10 +32,8 @@ public:
 
 RemoteCallbackList::RemoteCallbackList()
     :_mutex("RemoteCallbackList"),_killed(false) {
-    int size = sizeof(_callbacks)/sizeof(_callbacks[0]);
-    for(int i=0;i<size;i++) {
-        _callbacks[i] = NULL;
-    }
+        _callbacks.clear();
+        _activeCBs.clear();
 }
 
 RemoteCallbackList::~RemoteCallbackList() {
@@ -57,20 +55,12 @@ bool RemoteCallbackList::registerCallback(sp<IBinder> binder,void* cookie) {
     sp<RemoteCallback> cb = new RemoteCallback(this,binder,cookie);
     binder->linkToDeath(cb);
 
-    int size = sizeof(_callbacks)/sizeof(_callbacks[0]);
-    int i;
-    for(i=0;i<size;i++) {
-        if(_callbacks[i] == NULL) {
-            _callbacks[i] = cb;
-            break;
-        }
-    }
-    if(i >= size) {
-        ALOGW("%s no space left",__FUNCTION__);
-        return false;
+    if(_callbacks.add(binder,cb) >= 0) {
+        return true;
     }
 
-    return true;
+    ALOGW("%s register failed",__FUNCTION__);
+    return false;
 }
 
 
@@ -81,13 +71,9 @@ bool RemoteCallbackList::unregisterCallback(sp<IBinder> binder) {
     }
 
     Mutex::Autolock _l(_mutex);
-    int size = sizeof(_callbacks)/sizeof(_callbacks[0]);
-    for(int i=0;i<size;i++) {
-        if(_callbacks[i] != NULL && _callbacks[i]->_binder == binder) {
-            _callbacks[i]->_binder->unlinkToDeath(_callbacks[i]);
-            _callbacks[i] = NULL;
-            return true;
-        }
+
+    if(_callbacks.removeItem(binder) >= 0) {
+        return true;
     }
 
     ALOGW("%s binder not found",__FUNCTION__);
@@ -97,52 +83,45 @@ bool RemoteCallbackList::unregisterCallback(sp<IBinder> binder) {
 void RemoteCallbackList::kill() {
     Mutex::Autolock _l(_mutex);
 
-    int size = sizeof(_callbacks)/sizeof(_callbacks[0]);
+    int size = _callbacks.size();
     for(int i=0;i<size;i++) {
-        if(_callbacks[i] != NULL) {
-            _callbacks[i]->_binder->unlinkToDeath(_callbacks[i]);
-            _callbacks[i] = NULL;
-        }
+        sp<RemoteCallback> rc = _callbacks.valueAt(i);
+        rc->_binder->unlinkToDeath(rc);
     }
+    _callbacks.clear();
     _killed = true;
-
 }
 
 int RemoteCallbackList::beginBroadcast() {
     Mutex::Autolock _l(_mutex);
 
-    if(_activeCBs[0] != NULL) {
+    if(_activeCBs.size() > 0) {
         ALOGW("%s called while already in a broadcast",__FUNCTION__);
         return -1;
     }
 
-    int size = sizeof(_callbacks)/sizeof(_callbacks[0]);
-    int j=0;
+    int size = _callbacks.size();
     for(int i=0;i<size;i++) {
-        if(_callbacks[i] != NULL) {
-            _activeCBs[j++] = _callbacks[i];
-        }
+        _activeCBs.add(_callbacks.keyAt(i),_callbacks[i]);
     }
 
-    return j;
+    return size;
 }
 
 void RemoteCallbackList::finishBroadcast() {
     Mutex::Autolock _l(_mutex);
-    if(_activeCBs[0] == NULL) {
+    if(_activeCBs.size() <= 0) {
         ALOGW("%s called outside of a broadcast",__FUNCTION__);
         return;
     }
-    int size = sizeof(_activeCBs)/sizeof(_activeCBs[0]);
-    for(int i=0;i<size;i++) {
-        _activeCBs[i] = NULL;
-    }
+
+    _activeCBs.clear();
 }
 
 sp<IBinder> RemoteCallbackList::getBroadcastItem(int index) {
     Mutex::Autolock _l(_mutex);
 
-    int size = sizeof(_activeCBs)/sizeof(_activeCBs[0]);
+    int size = _activeCBs.size();
     if(index >= 0 && index < size && _activeCBs[index] != NULL) {
         return _activeCBs[index]->_binder;
     }
@@ -154,7 +133,7 @@ sp<IBinder> RemoteCallbackList::getBroadcastItem(int index) {
 void* RemoteCallbackList::getBroadcastCookie(int index) {
     Mutex::Autolock _l(_mutex);
 
-    int size = sizeof(_activeCBs)/sizeof(_activeCBs[0]);
+    int size = _activeCBs.size();
     if(index >= 0 && index < size && _activeCBs[index] != NULL) {
         return _activeCBs[index]->_cookie;
     }
@@ -166,16 +145,7 @@ void* RemoteCallbackList::getBroadcastCookie(int index) {
 int RemoteCallbackList::getRegisteredCallbackCount() {
     Mutex::Autolock _l(_mutex);
 
-    int size = sizeof(_callbacks)/sizeof(_callbacks[0]);
-    int count=0;
-    for(int i=0;i<size;i++) {
-        if(_callbacks[i] != NULL) {
-            count++;
-        }
-    }
-
-    return count;
+    return _callbacks.size();
 }
-
 
 }

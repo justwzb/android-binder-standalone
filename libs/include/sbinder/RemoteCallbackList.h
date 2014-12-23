@@ -10,6 +10,7 @@ added in binder-standalone
 #include <binder/IBinder.h>
 #include <utils/StrongPointer.h>
 #include <utils/Mutex.h>
+#include <utils/KeyedVector.h>
 
 namespace android {
 
@@ -39,8 +40,8 @@ public:
 private:
     Mutex _mutex;
     bool _killed;
-    sp<RemoteCallback> _callbacks[16]; //TODO: use list or hash table
-    sp<RemoteCallback> _activeCBs[16]; //TODO: use list or hash table
+    KeyedVector< wp<IBinder>, sp<RemoteCallback> > _callbacks;
+    KeyedVector< wp<IBinder>, sp<RemoteCallback> > _activeCBs;
 
 
 };
