@@ -315,7 +315,6 @@ int ServiceManager_start(void){
 	if(ret != 0){
 		return -1;
 	}
-	pthread_join(id,NULL);
 	return 0;
 }
 #else
