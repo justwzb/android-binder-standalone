@@ -283,17 +283,45 @@ private:
 
         static sp<Callback> findCb(cb_callback cb) {
             Mutex::Autolock _l(_mutex);
-
+			int i = 0;
+			int size = sizeof(Callback::_CBList)/sizeof(Callback::_CBList[0]);
+			for (i =0; i<size; i++){
+                if ( _CBList[i]->_callback == cb){
+					return _CBList[i];
+				}
+			}
+			return NULL;
         }
 
         static void addCb(sp<Callback> cb) {
             Mutex::Autolock _l(_mutex);
+			int i = 0;
+			int size = sizeof(Callback::_CBList)/sizeof(Callback::_CBList[0]);
 
+			for (i =0; i<size; i++){
+				if (_CBList[i] == cb){
+					return ;
+				}
+			}
+	
+			for (i =0; i<size; i++){
+				if (_CBList[i] == NULL){
+					_CBList[i] = cb;
+					break;
+				}
+			}
         }
 
         static void removeCb(sp<Callback> cb) {
             Mutex::Autolock _l(_mutex);
-
+			int i = 0;
+			int size = sizeof(Callback::_CBList)/sizeof(Callback::_CBList[0]);
+			for (i =0; i<size; i++){
+				if (_CBList[i] == cb){
+					_CBList[i] = NULL;
+					break;
+				}
+			}
         }
 
     private:
