@@ -72,8 +72,10 @@ bool RemoteCallbackList::unregisterCallback(sp<IBinder> binder) {
     }
 
     Mutex::Autolock _l(_mutex);
-
-    if(_callbacks.removeItem(binder) >= 0) {
+    ssize_t idx = _callbacks.indexOfKey(binder);
+    if(idx >= 0) {
+        _callbacks[idx]->_binder->unlinkToDeath(_callbacks[idx]);
+        _callbacks.removeItem(binder);
         return true;
     }
 
