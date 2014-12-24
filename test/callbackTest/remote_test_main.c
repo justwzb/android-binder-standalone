@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <sbinder/sbinderServ.h>
 
 #if defined(BINDER_SERVICE)
 
@@ -7,7 +8,8 @@
 
 int main(int arg, char** argv) {
 	ServiceManager_start();
-    return remote_callback_module_service_serv();
+    remote_callback_module_service_add();
+    return sbinder_serv();
 }
 
 #elif defined(BINDER_CLIENT)
@@ -49,7 +51,7 @@ int main(int arg, char** argv) {
     ret = cb_invoke(12);
     printf("ret = %d\n",ret);
     
-    sleep(5);
+    return sbinder_serv();
 }
 
 #else

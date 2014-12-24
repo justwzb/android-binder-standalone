@@ -61,6 +61,7 @@ SET(LIB_Bionic_SRC
 #sbinder, code added in this project
 SET(LIB_SBINDER_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/sbinder/RemoteCallbackList.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sbinder/sbinderServ.cpp
 )
 
 
