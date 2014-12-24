@@ -5,13 +5,17 @@
 
 using namespace android;
 
+int sbinder_start() {
+    sp<ProcessState> proc(ProcessState::self());
+    ProcessState::self()->startThreadPool();
+    ALOGV("ProcessState::self()->startThreadPool();");
+}
+
 int sbinder_serv()
 {
     sp<ProcessState> proc(ProcessState::self());
-
     ProcessState::self()->startThreadPool();
-    ALOGV("server -> enter loop ...");
     IPCThreadState::self()->joinThreadPool();
-    ALOGV("server -> return");
+    ALOGV("IPCThreadState::self()->joinThreadPool();");
     return 0;
 }

@@ -27,6 +27,8 @@ static int _cb_callback1(int param) {
 
 int main(int arg, char** argv) {
 
+    sbinder_start();
+
     int ret;
 
     ret = cb_add(_cb_callback);

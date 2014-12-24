@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+int sbinder_start();
 int sbinder_serv();
 
 
