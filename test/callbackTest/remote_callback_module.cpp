@@ -298,7 +298,7 @@ private:
         String16 _descriptor;
 
         static Mutex _mutex;
-        static KeyedVector< cb_callback, sp<Callback> > _CBList;
+        static DefaultKeyedVector< cb_callback, sp<Callback> > _CBList;
     };
 
 public:  
@@ -420,7 +420,7 @@ public:
 
 remote_callback_module_client* remote_callback_module_client::_instance = NULL;
 Mutex remote_callback_module_client::Callback::_mutex("Callback");
-KeyedVector< cb_callback, sp<remote_callback_module_client::Callback> > remote_callback_module_client::Callback::_CBList;
+DefaultKeyedVector< cb_callback, sp<remote_callback_module_client::Callback> > remote_callback_module_client::Callback::_CBList(NULL);
 
 int cb_add( cb_callback cb ) {
     return remote_callback_module_client::Instance()->cb_add(cb);
