@@ -132,7 +132,6 @@ public:
                     reply->writeInt32(-1);//Exception
                 }
                 //-- end code for cb_add here --
-                return NO_ERROR;
             } break;
             
             case TRANSACTION_cb_remove:
@@ -150,7 +149,6 @@ public:
                     reply->writeInt32(-1);//Exception
                 }
                 //-- end code for cb_remove here --
-                return NO_ERROR;
             } break;
             
             case TRANSACTION_cb_invoke:
@@ -171,7 +169,6 @@ public:
                 reply->writeInt32(_result); //int as return value
 
                 //-- end code for cb_invoke here --
-                return NO_ERROR;
             } break;
             
             default:  
@@ -180,6 +177,7 @@ public:
         }
 
         ALOGV(SERVICE_NAME"_service end");
+        return NO_ERROR;
     }
 }; 
 
