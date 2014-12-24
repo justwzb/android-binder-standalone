@@ -35,6 +35,7 @@ using namespace android;
 #include <stdlib.h>
 #include "remote_callback_module.h"
 #include <sbinder/RemoteCallbackList.h>
+#include <utils/KeyedVector.h>
 
 class remote_callback_module_service : public BBinder  
 {  
@@ -227,14 +228,6 @@ private:
             _descriptor = String16(SERVICE_NAME"_callback");
             _callback = cb;
             _userdata = NULL;
-
-            if(!_inited) {
-                int size = sizeof(Callback::_CBList)/sizeof(Callback::_CBList[0]);
-                for(int i=0;i<size;i++) {
-                    Callback::_CBList[i] = NULL;
-                }
-                _inited = true;
-            }
         }
 
         ~Callback() {
@@ -283,45 +276,20 @@ private:
 
         static sp<Callback> findCb(cb_callback cb) {
             Mutex::Autolock _l(_mutex);
-			int i = 0;
-			int size = sizeof(Callback::_CBList)/sizeof(Callback::_CBList[0]);
-			for (i =0; i<size; i++){
-                if ( _CBList[i]->_callback == cb){
-					return _CBList[i];
-				}
-			}
-			return NULL;
+
+            return _CBList.valueFor(cb);
         }
 
         static void addCb(sp<Callback> cb) {
             Mutex::Autolock _l(_mutex);
-			int i = 0;
-			int size = sizeof(Callback::_CBList)/sizeof(Callback::_CBList[0]);
 
-			for (i =0; i<size; i++){
-				if (_CBList[i] == cb){
-					return ;
-				}
-			}
-	
-			for (i =0; i<size; i++){
-				if (_CBList[i] == NULL){
-					_CBList[i] = cb;
-					break;
-				}
-			}
+            _CBList.add(cb->_callback,cb);
         }
 
         static void removeCb(sp<Callback> cb) {
             Mutex::Autolock _l(_mutex);
-			int i = 0;
-			int size = sizeof(Callback::_CBList)/sizeof(Callback::_CBList[0]);
-			for (i =0; i<size; i++){
-				if (_CBList[i] == cb){
-					_CBList[i] = NULL;
-					break;
-				}
-			}
+
+            _CBList.removeItem(cb->_callback);
         }
 
     private:
@@ -329,9 +297,8 @@ private:
         void* _userdata;
         String16 _descriptor;
 
-        static bool _inited;
         static Mutex _mutex;
-        static sp<Callback> _CBList[16];
+        static KeyedVector< cb_callback, sp<Callback> > _CBList;
     };
 
 public:  
@@ -452,9 +419,8 @@ public:
 };
 
 remote_callback_module_client* remote_callback_module_client::_instance = NULL;
-bool remote_callback_module_client::Callback::_inited = false;
 Mutex remote_callback_module_client::Callback::_mutex("Callback");
-sp<remote_callback_module_client::Callback> remote_callback_module_client::Callback::_CBList[16];
+KeyedVector< cb_callback, sp<remote_callback_module_client::Callback> > remote_callback_module_client::Callback::_CBList;
 
 int cb_add( cb_callback cb ) {
     return remote_callback_module_client::Instance()->cb_add(cb);
