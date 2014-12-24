@@ -31,9 +31,10 @@ public:
 };
 
 RemoteCallbackList::RemoteCallbackList()
-    :_mutex("RemoteCallbackList"),_killed(false) {
-        _callbacks.clear();
-        _activeCBs.clear();
+    :_mutex("RemoteCallbackList")
+    ,_killed(false)
+    ,_callbacks(NULL)
+    ,_activeCBs(NULL) {
 }
 
 RemoteCallbackList::~RemoteCallbackList() {

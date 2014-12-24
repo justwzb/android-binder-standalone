@@ -40,8 +40,8 @@ public:
 private:
     Mutex _mutex;
     bool _killed;
-    KeyedVector< wp<IBinder>, sp<RemoteCallback> > _callbacks;
-    KeyedVector< wp<IBinder>, sp<RemoteCallback> > _activeCBs;
+    DefaultKeyedVector< wp<IBinder>, sp<RemoteCallback> > _callbacks;
+    DefaultKeyedVector< wp<IBinder>, sp<RemoteCallback> > _activeCBs;
 
 
 };
