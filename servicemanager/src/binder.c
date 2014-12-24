@@ -107,7 +107,7 @@ struct binder_state *binder_open(unsigned mapsize)
         return 0;
     }
 
-    bs->fd = open("/dev/binder", O_RDWR);
+    bs->fd = open("/dev/sbinder", O_RDWR);
     if (bs->fd < 0) {
         fprintf(stderr,"binder: cannot open device (%s)\n",
                 strerror(errno));

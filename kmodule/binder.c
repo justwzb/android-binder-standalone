@@ -3568,11 +3568,11 @@ static int __init binder_init(void)
 {
 	int ret;
 
-	binder_deferred_workqueue = create_singlethread_workqueue("binder");
+	binder_deferred_workqueue = create_singlethread_workqueue("sbinder");
 	if (!binder_deferred_workqueue)
 		return -ENOMEM;
 
-	binder_debugfs_dir_entry_root = debugfs_create_dir("binder", NULL);
+	binder_debugfs_dir_entry_root = debugfs_create_dir("sbinder", NULL);
 	if (binder_debugfs_dir_entry_root)
 		binder_debugfs_dir_entry_proc = debugfs_create_dir("proc",
 						 binder_debugfs_dir_entry_root);
