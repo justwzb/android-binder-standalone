@@ -41,6 +41,23 @@ static void* _thread(void* arg) {
     return NULL;
 }
 
+static void* _thread2(void* arg) {
+
+    //TO let it callback sametime, no lock here, may issues but ...
+    int size = sizeof(s_cbs)/sizeof(s_cbs[0]);
+    for(int i=0;i<size;i++) {
+       if(s_cbs[i] != NULL) {
+    	   ALOGE("_thread2 _do_invoke arg = %d",(int)arg);
+    	   int ret = s_cbs[i]((int)arg);
+    	   ALOGE("_thread2 ret %d = %d",i,ret);
+       }
+    }
+        
+   return NULL;
+}
+
+
+
 int cb_invoke(int p) {
     Mutex::Autolock _l(s_mutex);
 
@@ -49,6 +66,25 @@ int cb_invoke(int p) {
 
 	return 0;
 }
+
+int cb_invoke2(int p) {
+	ALOGI("%s one thread sleep,others wait--------- \n",__FUNCTION__);
+    
+    //TO let it callback sametime, no lock here, may issues but ...
+    //Mutex::Autolock _l(s_mutex);
+
+	ALOGI("%s sleep 20 seconds start \n",__FUNCTION__);
+	sleep(20);
+	ALOGI("%s sleep 20 seconds over \n",__FUNCTION__);
+
+	pthread_t t;
+	pthread_create(&t,NULL,_thread2,(void*)p);
+
+    ALOGE("%s p = %d",__FUNCTION__,p);
+	
+	return 0;
+}
+
 
 int cb_add(cb_callback cb) {
     if(cb == NULL) {

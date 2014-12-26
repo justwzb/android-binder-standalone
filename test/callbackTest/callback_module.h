@@ -16,6 +16,9 @@ int cb_remove(cb_callback cb);
 
 int cb_invoke(int p);
 
+int cb_invoke2(int p);
+
+
 #ifdef __cplusplus
 }
 #endif

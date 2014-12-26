@@ -14,15 +14,35 @@ int main(int arg, char** argv) {
 
 #elif defined(BINDER_CLIENT)
 #include "callback_module.h"
+#include <pthread.h>
 
 static int _cb_callback(int param) {
-    printf("%s param=%d\n",__FUNCTION__,param);
+	
+    printf("%s callback sleep start param=%d\n",__FUNCTION__,param);
+	sleep(20);
+	printf("%s callback sleep overt param=%d\n",__FUNCTION__,param);
     return 0;
 }
 
 static int _cb_callback1(int param) {
     printf("%s param=%d\n",__FUNCTION__,param);
     return 1;
+}
+
+
+void* _thread(void* arg) {
+
+	printf("%s arg = %d\n",__FUNCTION__,(int)arg);
+	int ret = cb_invoke2((int)arg);
+
+    return NULL;
+}
+
+
+void startThread(int num){
+	pthread_t t;
+	pthread_create(&t,NULL,_thread,(void*)num);
+
 }
 
 int main(int arg, char** argv) {
@@ -50,9 +70,21 @@ int main(int arg, char** argv) {
     ret = cb_remove(_cb_callback1);
     printf("main 5ret = %d\n",ret);
 
-    ret = cb_invoke(12);
+
+	startThread(13);
     printf("main 6ret = %d\n",ret);
-    
+	startThread(14);
+    printf("main 7ret = %d\n",ret);
+	startThread(15);
+    printf("main 8ret = %d\n",ret);
+	startThread(16);
+    printf("main 9ret = %d\n",ret);
+	startThread(17);
+    printf("main 10ret = %d\n",ret);
+
+    ret = cb_invoke(12);
+    printf("main 11ret = %d\n",ret);
+
     return sbinder_serv();
 }
 

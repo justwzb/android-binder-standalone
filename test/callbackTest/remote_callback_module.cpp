@@ -23,6 +23,7 @@
 #define TRANSACTION_cb_add FIRST_CALL_TRANSACTION + 1
 #define TRANSACTION_cb_remove FIRST_CALL_TRANSACTION + 2
 #define TRANSACTION_cb_invoke FIRST_CALL_TRANSACTION + 3
+#define TRANSACTION_cb_invoke2 FIRST_CALL_TRANSACTION + 4 
 
 
 #define FIRST_CALLBACK_TRANSACTION                  (1)
@@ -171,6 +172,20 @@ public:
 
                 //-- end code for cb_invoke here --
             } break;
+
+            case TRANSACTION_cb_invoke2:
+            {
+                data.enforceInterface(String16(SERVICE_NAME));  //fixed check
+
+                reply->writeNoException();
+
+                int p = (int)data.readInt32();  //int as input paramter
+
+                int _result = cb_invoke2( p );
+
+                reply->writeInt32(_result); //int as return value
+
+            } break;			
             
             default:  
                 return BBinder::onTransact(code, data, reply, flags);
@@ -414,6 +429,38 @@ public:
         return _result;
         /*-- add you code for cb_invoke here --*/
     }
+
+	int cb_invoke2( int p ) {
+		
+		Parcel data, reply;
+
+		int _result = -1;
+		if(_binder == NULL) {
+			return _result;
+		}
+
+		try {
+			data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
+
+			data.writeInt32(p);  //int as input paramter
+
+			_binder->transact(TRANSACTION_cb_invoke2,data, &reply,0);
+
+			if(reply.readExceptionCode() == 0) {//fix check
+
+				_result = (typeof(_result))reply.readInt32();//int as return value
+
+			}
+		}catch(...) {
+			ALOGE(SERVICE_NAME"_client cb_invoke error");
+		}
+
+		return _result;
+		/*-- add you code for cb_invoke here --*/
+	}
+
+
+	
 };
 
 remote_callback_module_client* remote_callback_module_client::_instance = NULL;
@@ -429,6 +476,11 @@ int cb_remove( cb_callback cb ) {
 int cb_invoke( int p ) {
     return remote_callback_module_client::Instance()->cb_invoke(p);
 }
+
+int cb_invoke2( int p ) {
+    return remote_callback_module_client::Instance()->cb_invoke2(p);
+}
+
 
 #else
  #error Must define BINDER_SERVICE or BINDER_CLIENT
