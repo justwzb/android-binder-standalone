@@ -8,7 +8,7 @@ namespace android {
 class RemoteCallback : public IBinder::DeathRecipient,public virtual RefBase {
 
 public:
-    RemoteCallback(sp<RemoteCallbackList> parent,sp<IBinder> binder,void* cookie) {
+    RemoteCallback(RemoteCallbackList* parent,sp<IBinder> binder,void* cookie) {
         _parent = parent;
         _binder = binder;
         _cookie = cookie;
@@ -25,7 +25,7 @@ public:
         _parent->onCallbackDied(_binder,_cookie);
     }
 
-    sp<RemoteCallbackList> _parent;
+    RemoteCallbackList* _parent;
     sp<IBinder> _binder;
     void* _cookie;
 };
