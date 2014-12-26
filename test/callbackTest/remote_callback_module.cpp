@@ -75,6 +75,7 @@ private:
         }
         rcbl->finishBroadcast();
 
+        ALOGV(SERVICE_NAME"_service module_callback end");
         return _result;
     }
 
@@ -111,7 +112,7 @@ public:
                     if(_first) {
                         _result = cb_add(remote_callback_module_service::module_callback);
                         if(_result == 0) {
-                            _first = true;
+                            _first = false;
                         }
                     }
 
@@ -230,7 +231,6 @@ private:
 
         ~Callback() {
             ALOGV(SERVICE_NAME"_client callback %p-%p destory\n",this,_callback);
-            Callback::removeCb(this);//for safe
             _callback = NULL;
             _userdata = NULL;
         }
