@@ -32,26 +32,26 @@ int main(int arg, char** argv) {
     int ret;
 
     ret = cb_add(_cb_callback);
-    printf("ret = %d\n",ret);
+    printf("main 1ret = %d\n",ret);
 
     ret = cb_add(_cb_callback1);
-    printf("ret = %d\n",ret);
+    printf("main 2ret = %d\n",ret);
 
     ret = cb_invoke(10);
-    printf("ret = %d\n",ret);
+    printf("main 3ret = %d\n",ret);
 
     sleep(5);
 
     ret = cb_invoke(11);
-    printf("ret = %d\n",ret);
+    printf("main 4ret = %d\n",ret);
 
     sleep(5);
 
     ret = cb_remove(_cb_callback1);
-    printf("ret = %d\n",ret);
+    printf("main 5ret = %d\n",ret);
 
     ret = cb_invoke(12);
-    printf("ret = %d\n",ret);
+    printf("main 6ret = %d\n",ret);
     
     return sbinder_serv();
 }
