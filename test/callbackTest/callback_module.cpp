@@ -19,6 +19,7 @@ static void _do_invoke() {
     int size = sizeof(s_cbs)/sizeof(s_cbs[0]);
     for(int i=0;i<size;i++) {
         if(s_cbs[i] != NULL) {
+    		ALOGE("_do_invoke s_param1 = %d",s_param);
             int ret = s_cbs[i](s_param);
             ALOGE("ret %d = %d",i,ret);
         }
@@ -45,6 +46,8 @@ int cb_invoke(int p) {
 
     s_param = p;
     ALOGE("%s p = %d",__FUNCTION__,p);
+
+	return 0;
 }
 
 int cb_add(cb_callback cb) {
