@@ -2,10 +2,11 @@ android-binder-standalone
 =========================
 
 standalone binder from android with ipc demo including:
-1. sample remote calls
-2. struct parmters
-3. ringbuffer
-4. multi-threads callback
+
+* sample remote calls
+* struct parmters
+* ringbuffer without copy
+* multi-threads callbacks
 
 ### How to build:
 
