@@ -34,7 +34,7 @@ RemoteCallbackList::RemoteCallbackList()
     :_mutex("RemoteCallbackList")
     ,_killed(false)
     ,_callbacks(NULL)
-    ,_activeCBs(NULL) {
+    ,_activeCBsList(NULL){
 }
 
 RemoteCallbackList::~RemoteCallbackList() {
@@ -97,36 +97,56 @@ void RemoteCallbackList::kill() {
 
 int RemoteCallbackList::beginBroadcast() {
     Mutex::Autolock _l(_mutex);
-
-    if(_activeCBs.size() > 0) {
-        ALOGW("%s called while already in a broadcast",__FUNCTION__);
+	
+	DefaultKeyedVector< wp<IBinder>, sp<RemoteCallback> >* pActiveCBs = _activeCBsList.valueFor(pthread_self());
+	if(pActiveCBs != NULL) {
+        ALOGW("%s called while already in a broadcast\n",__FUNCTION__);
         return -1;
-    }
+	}
 
+	pActiveCBs = new DefaultKeyedVector< wp<IBinder>, sp<RemoteCallback> >;
+	if(pActiveCBs == NULL) {
+		ALOGW("[%s]out of memory\n",__FUNCTION__);
+		return -2;
+	}
+	
     int size = _callbacks.size();
     for(int i=0;i<size;i++) {
-        _activeCBs.add(_callbacks.keyAt(i),_callbacks[i]);
+        pActiveCBs->add(_callbacks.keyAt(i),_callbacks[i]);
     }
-
+	_activeCBsList.add(pthread_self(),pActiveCBs);
     return size;
 }
 
 void RemoteCallbackList::finishBroadcast() {
     Mutex::Autolock _l(_mutex);
-    if(_activeCBs.size() <= 0) {
+
+	DefaultKeyedVector< wp<IBinder>, sp<RemoteCallback> >* pActiveCBs =_activeCBsList.valueFor(pthread_self());
+	if(pActiveCBs == NULL) {
         ALOGW("%s called outside of a broadcast",__FUNCTION__);
         return;
-    }
+	}
 
-    _activeCBs.clear();
+	pActiveCBs->clear();
+	_activeCBsList.removeItem(pthread_self());
+
+	delete pActiveCBs;
+	pActiveCBs = NULL;
 }
 
 sp<IBinder> RemoteCallbackList::getBroadcastItem(int index) {
     Mutex::Autolock _l(_mutex);
 
-    int size = _activeCBs.size();
-    if(index >= 0 && index < size && _activeCBs[index] != NULL) {
-        return _activeCBs[index]->_binder;
+	DefaultKeyedVector< wp<IBinder>, sp<RemoteCallback> >* pActiveCBs =_activeCBsList.valueFor(pthread_self());
+
+	if (pActiveCBs == NULL || pActiveCBs->size() <= 0){
+		ALOGE("%s activeCBs null\n",__FUNCTION__);
+		return NULL;
+	}
+
+    int size = pActiveCBs->size();
+    if(index >= 0 && index < size && pActiveCBs->valueAt(index)!= NULL) {
+        return pActiveCBs->valueAt(index)->_binder;
     }
 
     ALOGW("%s out of border",__FUNCTION__);
@@ -135,10 +155,17 @@ sp<IBinder> RemoteCallbackList::getBroadcastItem(int index) {
 
 void* RemoteCallbackList::getBroadcastCookie(int index) {
     Mutex::Autolock _l(_mutex);
+	
+	DefaultKeyedVector< wp<IBinder>, sp<RemoteCallback> >* pActiveCBs =_activeCBsList.valueFor(pthread_self());
 
-    int size = _activeCBs.size();
-    if(index >= 0 && index < size && _activeCBs[index] != NULL) {
-        return _activeCBs[index]->_cookie;
+	if (pActiveCBs == NULL || pActiveCBs->size() <= 0){
+		ALOGE("%s activeCBs null\n",__FUNCTION__);
+		return NULL;
+	}
+
+    int size = pActiveCBs->size();
+    if(index >= 0 && index < size && pActiveCBs->valueAt(index)!= NULL) {
+        return pActiveCBs->valueAt(index)->_cookie;
     }
 
     ALOGW("%s out of border",__FUNCTION__);

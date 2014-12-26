@@ -11,6 +11,7 @@ added in binder-standalone
 #include <utils/StrongPointer.h>
 #include <utils/Mutex.h>
 #include <utils/KeyedVector.h>
+#include <pthread.h>
 
 namespace android {
 
@@ -41,8 +42,7 @@ private:
     Mutex _mutex;
     bool _killed;
     DefaultKeyedVector< wp<IBinder>, sp<RemoteCallback> > _callbacks;
-    DefaultKeyedVector< wp<IBinder>, sp<RemoteCallback> > _activeCBs;
-
+    DefaultKeyedVector<pthread_t,DefaultKeyedVector< wp<IBinder>, sp<RemoteCallback > >* > _activeCBsList;
 
 };
 
