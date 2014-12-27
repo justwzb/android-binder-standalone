@@ -219,11 +219,14 @@ remote_callback_module_service* remote_callback_module_service::_instance = NULL
 
 #elif defined(BINDER_CLIENT)
 
+#include <sbinder/ICallbackList.h>
+
 class remote_callback_module_client  
 {  
 private:
     static remote_callback_module_client* _instance;
     sp<IBinder> _binder;
+    ICallbackList _CBList;
 
     remote_callback_module_client() {
         ALOGV(SERVICE_NAME"_client create\n");
@@ -235,19 +238,14 @@ private:
         ALOGV(SERVICE_NAME"_client destory\n");
     }
 
-    class Callback : public BBinder {
+    class Callback : public ICallbackList::ICallback {
     public:
-        Callback(cb_callback cb) {
-            ALOGV(SERVICE_NAME"_client callback %p-%p create\n",this,cb);
+        Callback(void* cb,void* cookie)
+            :ICallback(cb,cookie) {
             _descriptor = String16(SERVICE_NAME"_callback");
-            _callback = cb;
-            _userdata = NULL;
         }
 
         ~Callback() {
-            ALOGV(SERVICE_NAME"_client callback %p-%p destory\n",this,_callback);
-            _callback = NULL;
-            _userdata = NULL;
         }
 
         virtual status_t onTransact( uint32_t code,
@@ -265,7 +263,7 @@ private:
                 if(_callback != NULL) {
                     int param = (int)data.readInt32();  //int as input paramter
 
-                    int _result = _callback(param);
+                    int _result = ((cb_callback)_callback)(param);
 
                     reply->writeNoException();
                     reply->writeInt32(_result);
@@ -282,36 +280,6 @@ private:
 
             return NO_ERROR;
         }
-
-        virtual const String16& getInterfaceDescriptor() const{
-            return _descriptor;
-        }
-
-        static sp<Callback> findCb(cb_callback cb) {
-            Mutex::Autolock _l(_mutex);
-
-            return _CBList.valueFor(cb);
-        }
-
-        static void addCb(sp<Callback> cb) {
-            Mutex::Autolock _l(_mutex);
-
-            _CBList.add(cb->_callback,cb);
-        }
-
-        static void removeCb(sp<Callback> cb) {
-            Mutex::Autolock _l(_mutex);
-
-            _CBList.removeItem(cb->_callback);
-        }
-
-    private:
-        cb_callback _callback;
-        void* _userdata;
-        String16 _descriptor;
-
-        static Mutex _mutex;
-        static DefaultKeyedVector< cb_callback, sp<Callback> > _CBList;
     };
 
 public:  
@@ -334,7 +302,7 @@ public:
             return _result;
         }
 
-        if(Callback::findCb(cb) != NULL) {
+        if(_CBList.findCallback((void*)cb,NULL) != NULL) {
             ALOGE(SERVICE_NAME"_client cb arleady added");
             return _result;
         }
@@ -342,7 +310,7 @@ public:
         try {
             data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-            sp<Callback> ccb = new Callback(cb);
+            sp<Callback> ccb = new Callback((void*)cb,NULL);
             data.writeStrongBinder(ccb);
 
             _binder->transact(TRANSACTION_cb_add,data, &reply,0);
@@ -351,7 +319,7 @@ public:
                 _result = (typeof(_result))reply.readInt32();//int as return value
 
                 if(_result == 0) { //success
-                    Callback::addCb(ccb);
+                    _CBList.addCallback(ccb);
                 }
             }
         }catch(...) {
@@ -372,7 +340,7 @@ public:
             return _result;
         }
 
-        sp<Callback> ccb = Callback::findCb(cb);
+        sp<ICallbackList::ICallback> ccb = _CBList.findCallback((void*)cb,NULL);
         if( ccb == NULL) {
             ALOGE(SERVICE_NAME"_client cb not added");
             return _result;
@@ -390,7 +358,7 @@ public:
                 _result = (typeof(_result))reply.readInt32();//int as return value
 
                 if(_result == 0) { //success
-                    Callback::removeCb(ccb);
+                    _CBList.removeCallback(ccb);
                 }
             }
         }catch(...) {
@@ -464,8 +432,6 @@ public:
 };
 
 remote_callback_module_client* remote_callback_module_client::_instance = NULL;
-Mutex remote_callback_module_client::Callback::_mutex("Callback");
-DefaultKeyedVector< cb_callback, sp<remote_callback_module_client::Callback> > remote_callback_module_client::Callback::_CBList(NULL);
 
 int cb_add( cb_callback cb ) {
     return remote_callback_module_client::Instance()->cb_add(cb);
