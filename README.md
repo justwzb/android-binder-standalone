@@ -26,7 +26,7 @@ python tools/sidl/sidl.py xxx.sidl
 
 ### Code From:
 
-The source code of binder are copied from ASOP
+The source code of binder are copied from AOSP
 
 binder & servicemanager
 https://android.googlesource.com/platform/frameworks/native/+/android-4.4.4_r2.0.1
