@@ -14,10 +14,6 @@ extern "C" {
 
  #include "matrix_ringbuf.h"
 
-
-///< call this api loop for ever and star service
-int remote_buffer_module_service_serv();
-
 ///< call this api to only add this service
 int remote_buffer_module_service_add();
 

@@ -10,6 +10,7 @@ typedef struct {
 	unsigned int out;
 	unsigned int bufsize;
 	unsigned char *buf;
+	unsigned int allocFlag;
 } _matrix_ringbuf;
 
  matrix_ringbuf_handle matrix_ringbuf_init(unsigned int bufsize) {
@@ -27,8 +28,10 @@ matrix_ringbuf_handle matrix_ringbuf_initwithbuffer(void* ptr,unsigned int bufsi
 	memset(ringBuf, 0, sizeof(_matrix_ringbuf));
 	if (ptr != NULL){
 		ringBuf->buf =(char*)ptr;
+		ringBuf->allocFlag = 0;
 	}else{
 		ringBuf->buf = (unsigned char*)malloc(bufsize);
+		ringBuf->allocFlag = 1;
 	}
 	
 	MHAL_ASSERT(ringBuf->buf != NULL, "matrix_ringbuf_init : malloc Failed!!!");
@@ -348,10 +351,10 @@ int matrix_ringbuf_exit(matrix_ringbuf_handle handle) {
 	}
 			
 	_matrix_ringbuf *ringBuf = (_matrix_ringbuf *)handle; 
-	
-	if(ringBuf->buf){
+
+	if (ringBuf->allocFlag ==  1 && ringBuf->buf != NULL){
 		free(ringBuf->buf);
-	}	
+	}
 	
 	memset(ringBuf, 0, sizeof(_matrix_ringbuf));
 

@@ -12,6 +12,7 @@
 int main(int arg, char** argv) {
     ServiceManager_start();
     remote_struct_module_service_add();
+    remote_upstruct_module_service_add();
     return sbinder_serv();
 }
 
@@ -89,7 +90,7 @@ int main(int arg, char** argv) {
     testStruct();
     testEnum();
     testupStruct();
-    
+
     return sbinder_serv(); 
 }
 
