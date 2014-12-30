@@ -7,7 +7,8 @@
 
 int main(int arg, char** argv) {
 	ServiceManager_start();
-    return remote_buffer_module_service_serv();
+	remote_buffer_module_service_add();
+    return sbinder_serv();
 }
 
 #elif defined(BINDER_CLIENT)
@@ -16,6 +17,8 @@ int main(int arg, char** argv) {
 #define BUFFER_SIZE 64*1024  //must be 2^n, TODO: all size support will add in server
 
 int main(int arg, char** argv) {
+    sbinder_start();
+
 	matrix_ringbuf_handle handle = matrix_ringbuf_init((unsigned int)BUFFER_SIZE);
 	printf("Main, ringbuf init, handle = %p\n",handle);
 
@@ -51,7 +54,8 @@ int main(int arg, char** argv) {
 
 	int ret = matrix_ringbuf_exit(handle);
 	printf("Main, matrix_ringbuf_exit,ret=%d\n",ret);
-	return 0;
+	
+    return sbinder_serv();
 }
 
 #else

@@ -126,20 +126,6 @@ public:
     }
 }; 
 
-int remote_upstruct_module_service_serv()
-{
-    sp<ProcessState> proc(ProcessState::self());
-
-    int ret = remote_upstruct_module_service::Instance();
-    ALOGV("server - remote_upstruct_module__service::Instance return %d", ret);
-
-    ProcessState::self()->startThreadPool();
-    ALOGV("server -> enter loop ...");
-    IPCThreadState::self()->joinThreadPool();
-    ALOGV("server -> return");
-    return 0;
-}
-
 int remote_upstruct_module_service_add() {
     remote_upstruct_module_service::Instance();
 }

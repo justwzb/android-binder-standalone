@@ -287,20 +287,6 @@ py*/
     }
 }; 
 
-int %=sidl_basename%_service_serv()
-{
-    sp<ProcessState> proc(ProcessState::self());
-
-    int ret = %=sidl_basename%_service::Instance();
-    ALOGV("server - %=sidl_basename%__service::Instance return %d", ret);
-
-    ProcessState::self()->startThreadPool();
-    ALOGV("server -> enter loop ...");
-    IPCThreadState::self()->joinThreadPool();
-    ALOGV("server -> return");
-    return 0;
-}
-
 int %=sidl_basename%_service_add() {
     %=sidl_basename%_service::Instance();
 }

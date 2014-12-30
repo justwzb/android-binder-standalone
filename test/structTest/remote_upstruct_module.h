@@ -14,10 +14,6 @@ extern "C" {
 
  #include "struct_module.h"
 
-
-///< call this api loop for ever and star service
-int remote_upstruct_module_service_serv();
-
 ///< call this api to only add this service
 int remote_upstruct_module_service_add();
 

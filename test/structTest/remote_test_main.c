@@ -2,16 +2,17 @@
 #include <string.h>
 
 #include "struct_module.h"
+#include "service_manager.h"
 
 #if defined(BINDER_SERVICE)
 
 #include "remote_struct_module.h"
 #include "remote_upstruct_module.h"
-#include "service_manager.h"
 
 int main(int arg, char** argv) {
     ServiceManager_start();
-    return remote_struct_module_service_serv();
+    remote_struct_module_service_add();
+    return sbinder_serv();
 }
 
 #elif defined(BINDER_CLIENT)
@@ -83,9 +84,13 @@ static void testupStruct() {
 }
 
 int main(int arg, char** argv) {
+    sbinder_start();
+
     testStruct();
     testEnum();
     testupStruct();
+    
+    return sbinder_serv(); 
 }
 
 #else

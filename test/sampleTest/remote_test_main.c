@@ -1,15 +1,16 @@
 #include <stdio.h>
 
 #include "sample_module.h"
+#include "service_manager.h"
 
 #if defined(BINDER_SERVICE)
 
 #include "remote_sample_module.h"
-#include "service_manager.h"
 
 int main(int arg, char** argv) {
 	ServiceManager_start();
-    return remote_sample_module_service_serv();
+    remote_sample_module_service_add();
+    return sbinder_serv();
 }
 
 #elif defined(BINDER_CLIENT)
@@ -38,9 +39,12 @@ static void testint16l(void) {
 }
 
 int main(int arg, char** argv) {
+    sbinder_start();
 
 	testint1();
 	//testint16l();
+
+    return sbinder_serv(); 
 }
 
 #else

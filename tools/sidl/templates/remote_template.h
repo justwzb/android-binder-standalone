@@ -18,9 +18,6 @@ for ctx in sidl_context:
         output(ctx.output()+"\n")
 py*/
 
-///< call this api loop for ever and star service
-int %=sidl_basename%_service_serv();
-
 ///< call this api to only add this service
 int %=sidl_basename%_service_add();
 
