@@ -68,7 +68,7 @@ static void testEnum(void) {
 }
 
 static void testupStruct() {
-    char inbuf[8]="abcdefghij";
+    char inbuf[]="abcdefghij";
     STRUCT_UNFLAT_S pin;
     pin.i = 1;
     pin.j = 2;

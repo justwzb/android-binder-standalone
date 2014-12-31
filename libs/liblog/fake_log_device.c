@@ -321,7 +321,7 @@ static const char* getPriorityString(int priority)
  */
 static ssize_t fake_writev(int fd, const struct iovec *iov, int iovcnt) {
     int result = 0;
-    struct iovec* end = iov + iovcnt;
+    const struct iovec* end = iov + iovcnt;
     for (; iov < end; iov++) {
         int w = write(fd, iov->iov_base, iov->iov_len);
         if (w != iov->iov_len) {

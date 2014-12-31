@@ -289,6 +289,7 @@ py*/
 
 int %=sidl_basename%_service_add() {
     %=sidl_basename%_service::Instance();
+    return 0;
 }
 
 %=sidl_basename%_service* %=sidl_basename%_service::_instance = NULL;
@@ -299,7 +300,7 @@ class %=sidl_basename%_client
 {  
 private:
     static %=sidl_basename%_client* _instance;
-    sp<IBinder> _binder = NULL;
+    sp<IBinder> _binder;
 
     %=sidl_basename%_client() {
         ALOGV(SERVICE_NAME"_client create\n");

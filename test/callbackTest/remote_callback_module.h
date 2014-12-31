@@ -12,11 +12,7 @@ extern "C" {
 
 #if defined(BINDER_SERVICE)
 
- #include "callback_module.h"
-
-
-///< call this api loop for ever and star service
-int remote_callback_module_service_serv();
+#include "callback_module.h"
 
 ///< call this api to only add this service
 int remote_callback_module_service_add();

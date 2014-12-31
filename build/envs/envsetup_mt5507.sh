@@ -22,8 +22,8 @@ export CMAKE_CXX_COMPILER="/opt/mtk/mtk5507_Bionic/tcl_tool_chain/arm-linux-andr
 #-DOS_PATH_SEPARATOR='/'
 #-DANDROID_SMP=1
 
-export CMAKE_C_FLAGS="-g -fexceptions -Wl,-v  -march=armv7-a -mfloat-abi=softfp  -mfpu=neon  -DHAVE_ANDROID_OS -DHAVE_SYS_UIO_H -DHAVE_PTHREADS -DHAVE_ENDIAN_H -DHAVE_OFF64_T -DHAVE_POSIX_FILEMAP -DOS_PATH_SEPARATOR=\'/\' -DANDROID_SMP=1"
-export CMAKE_CXX_FLAGS="-g -fexceptions -fno-rtti -Wl,-v -march=armv7-a  -mfloat-abi=softfp  -mfpu=neon -DHAVE_ANDROID_OS -DHAVE_SYS_UIO_H -DHAVE_PTHREADS -DHAVE_ENDIAN_H -DHAVE_OFF64_T -DHAVE_POSIX_FILEMAP -DOS_PATH_SEPARATOR=\'/\' -DANDROID_SMP=1"
+export CMAKE_C_FLAGS="-g -fexceptions -Werror -Wl,-v  -march=armv7-a -mfloat-abi=softfp  -mfpu=neon  -DHAVE_ANDROID_OS -DHAVE_SYS_UIO_H -DHAVE_PTHREADS -DHAVE_ENDIAN_H -DHAVE_OFF64_T -DHAVE_POSIX_FILEMAP -DOS_PATH_SEPARATOR=\'/\' -DANDROID_SMP=1"
+export CMAKE_CXX_FLAGS="-g -fexceptions -Werror -fno-rtti -Wl,-v -march=armv7-a  -mfloat-abi=softfp  -mfpu=neon -DHAVE_ANDROID_OS -DHAVE_SYS_UIO_H -DHAVE_PTHREADS -DHAVE_ENDIAN_H -DHAVE_OFF64_T -DHAVE_POSIX_FILEMAP -DOS_PATH_SEPARATOR=\'/\' -DANDROID_SMP=1"
 
 #arm,mips,x86
 export CMAKE_TARGET_ARCH="arm"
