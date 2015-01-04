@@ -1,13 +1,13 @@
 #include kernel headers
-IF($ENV{CMAKE_TARGET_ARCH} STREQUAL "arm")
+IF(CMAKE_TARGET_ARCH STREQUAL "arm")
     set(KERNEL_INCLUDE_DIR_ARCH
         ${PROJECT_SOURCE_DIR}/libs/include/kernel/arch-arm
     )
-ELSEIF($ENV{CMAKE_TARGET_ARCH} STREQUAL "mips")
+ELSEIF(CMAKE_TARGET_ARCH STREQUAL "mips")
     set(KERNEL_INCLUDE_DIR_ARCH
         ${PROJECT_SOURCE_DIR}/libs/include/kernel/arch-mips
     )
-ELSEIF($ENV{CMAKE_TARGET_ARCH} STREQUAL "x86")
+ELSEIF(CMAKE_TARGET_ARCH STREQUAL "x86")
     set(KERNEL_INCLUDE_DIR_ARCH
         ${PROJECT_SOURCE_DIR}/libs/include/kernel/arch-x86
     )

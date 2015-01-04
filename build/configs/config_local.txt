@@ -1,0 +1,5 @@
+INCLUDE(${CMAKE_CONFIG_ROOT}/config_default.txt)
+
+set(CMAKE_TARGET_ARCH x86)
+
+set(CMAKE_BINDER_LINKLIBS pthread)

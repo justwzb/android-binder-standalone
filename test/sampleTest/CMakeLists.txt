@@ -36,7 +36,7 @@ ADD_EXECUTABLE(sampleTestService ${SAMPLETEST_SRC_SERVICE})
 set_target_properties(sampleTestService PROPERTIES COMPILE_DEFINITIONS "BINDER_SERVICE")
 ADD_DEPENDENCIES(sampleTestService StandaloneBinder)
 ADD_DEPENDENCIES(libservicemanager StandaloneBinder)
-TARGET_LINK_LIBRARIES(sampleTestService StandaloneBinder libservicemanager $ENV{CMAKE_TEST_LINKLIBS})
+TARGET_LINK_LIBRARIES(sampleTestService StandaloneBinder libservicemanager ${CMAKE_TEST_LINKLIBS})
 
 #Client for sampleTest
 set(SAMPLETEST_SRC_CLIENT
@@ -46,4 +46,4 @@ set(SAMPLETEST_SRC_CLIENT
 ADD_EXECUTABLE(sampleTestClient ${SAMPLETEST_SRC_CLIENT})
 set_target_properties(sampleTestClient PROPERTIES COMPILE_DEFINITIONS "BINDER_CLIENT")
 ADD_DEPENDENCIES(sampleTestClient StandaloneBinder)
-TARGET_LINK_LIBRARIES(sampleTestClient StandaloneBinder $ENV{CMAKE_TEST_LINKLIBS})
+TARGET_LINK_LIBRARIES(sampleTestClient StandaloneBinder ${CMAKE_TEST_LINKLIBS})

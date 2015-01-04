@@ -16,7 +16,7 @@ ADD_EXECUTABLE(bufferTestService ${SAMPLE_BUFFERTEST_SRC_SERVICE})
 set_target_properties(bufferTestService PROPERTIES COMPILE_DEFINITIONS "BINDER_SERVICE")
 ADD_DEPENDENCIES(bufferTestService StandaloneBinder)
 ADD_DEPENDENCIES(libservicemanager StandaloneBinder)
-TARGET_LINK_LIBRARIES(bufferTestService StandaloneBinder libservicemanager $ENV{CMAKE_TEST_LINKLIBS})
+TARGET_LINK_LIBRARIES(bufferTestService StandaloneBinder libservicemanager ${CMAKE_TEST_LINKLIBS})
 
 #CLIENT for bufferTest
 set(SAMPLE_BUFFERTEST_SRC_CLIENT
@@ -27,4 +27,4 @@ set(SAMPLE_BUFFERTEST_SRC_CLIENT
 ADD_EXECUTABLE(bufferTestClient ${SAMPLE_BUFFERTEST_SRC_CLIENT})
 set_target_properties(bufferTestClient PROPERTIES COMPILE_DEFINITIONS "BINDER_CLIENT")
 ADD_DEPENDENCIES(bufferTestClient StandaloneBinder)
-TARGET_LINK_LIBRARIES(bufferTestClient StandaloneBinder $ENV{CMAKE_TEST_LINKLIBS})
+TARGET_LINK_LIBRARIES(bufferTestClient StandaloneBinder ${CMAKE_TEST_LINKLIBS})
