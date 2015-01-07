@@ -31,39 +31,10 @@ extern "C" {
 #define ONTRANSACT_ringbuf_confirmAquireOut 3
 
 
-#ifndef LOG_TAG
-#define LOG_TAG NULL
-#endif
-
-#ifndef LOGV
-#define LOGV(...) 	(__android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__))
-#endif
-
-#ifndef LOGD
-#define LOGD(...) 	(__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))
-#endif
-
-#ifndef LOGI
-#define LOGI(...) 	(__android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__))
-#endif
-
-#ifndef LOGW
-#define LOGW(...) 	(__android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__))
-#endif
-
-#ifndef LOGE
-#define LOGE(...) 	(__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
-#endif
-
-#ifndef LOGF
-#define LOGF(...) 	(__android_log_print(ANDROID_LOG_FATAL, LOG_TAG, __VA_ARGS__))
-#endif
-
 
 #define MHAL_ASSERT(expr, fmt,...)  \
     if (!(expr)) { \
-        __android_log_print(ANDROID_LOG_FATAL,LOG_TAG, \
-        "FATAL: Assertion FAILED in '%s', line %d, func %s ('%s'): "#fmt"\n", \
+        ALOGE("FATAL: Assertion FAILED in '%s', line %d, func %s ('%s'): "#fmt"\n", \
 			   __FILE__, __LINE__,__FUNCTION__, #expr, ##__VA_ARGS__);	\
 	}do{}while(0)
 

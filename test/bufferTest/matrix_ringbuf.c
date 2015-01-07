@@ -20,7 +20,7 @@ typedef struct {
 matrix_ringbuf_handle matrix_ringbuf_initwithbuffer(void* ptr,unsigned int bufsize){
 	ALOGI("ENTER %s\n", __FUNCTION__);
 	if (bufsize & (bufsize - 1)) {
-		LOGE("%d bufsize should be 2^n", bufsize);
+		ALOGE("%d bufsize should be 2^n", bufsize);
 		return NULL;
 	}
 
@@ -48,7 +48,7 @@ unsigned int matrix_ringbuf_in(matrix_ringbuf_handle handle, unsigned char *buf,
 
 	//LOGV("ENTER %s", __FUNCTION__);	
 	if(handle == NULL || buf == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return 0;
 	}
 
@@ -82,7 +82,7 @@ unsigned int matrix_ringbuf_out(matrix_ringbuf_handle handle, unsigned char *buf
 
 	//LOGV("ENTER %s", __FUNCTION__);	
 	if(handle == NULL || buf == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return 0;
 	}
 		
@@ -104,17 +104,17 @@ unsigned int matrix_ringbuf_out(matrix_ringbuf_handle handle, unsigned char *buf
 }
 
 unsigned int matrix_ringbuf_skip(matrix_ringbuf_handle handle, unsigned int size){
-	LOGV("ENTER %s", __FUNCTION__);
+	ALOGV("ENTER %s", __FUNCTION__);
 
 	if(handle == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return 0;
 	}
 			
 	_matrix_ringbuf *ringBuf = (_matrix_ringbuf *)handle;
 	
 	if ((ringBuf->in - ringBuf->out) == 0) {
-		LOGW("%s, Here is no data in ring buffer", __FUNCTION__);
+		ALOGW("%s, Here is no data in ring buffer", __FUNCTION__);
 		return 0;
 	}
 
@@ -136,7 +136,7 @@ unsigned int matrix_ringbuf_aquireOut(matrix_ringbuf_handle handle, const unsign
 	//LOGV("ENTER %s", __FUNCTION__);
 
 	if(handle == NULL || buf == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return 0;
 	}
 			
@@ -165,7 +165,7 @@ unsigned int matrix_ringbuf_confirmAquireOut(matrix_ringbuf_handle handle, unsig
 	//LOGV("ENTER %s", __FUNCTION__);
 
 	if(handle == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return 0;
 	}
 			
@@ -194,17 +194,17 @@ unsigned int matrix_ringbuf_aquireIn(matrix_ringbuf_handle handle, unsigned char
 
 	unsigned int len = 0;
 	
-	LOGV("ENTER %s", __FUNCTION__);
+	ALOGV("ENTER %s", __FUNCTION__);
 
 	if(handle == NULL || buf == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return 0;
 	}
 			
 	_matrix_ringbuf *ringBuf = (_matrix_ringbuf *)handle;
 	
 	if (ringBuf->bufsize - (ringBuf->in - ringBuf->out) == 0) {
-		LOGW("%s, Here is no free space in ring buffer", __FUNCTION__);
+		ALOGW("%s, Here is no free space in ring buffer", __FUNCTION__);
 		*buf = NULL;
 		return 0;
 	}
@@ -226,10 +226,10 @@ unsigned int matrix_ringbuf_confirmAquireIn(matrix_ringbuf_handle handle, unsign
 
 	unsigned int len = 0;
 	
-	LOGV("ENTER %s", __FUNCTION__);
+	ALOGV("ENTER %s", __FUNCTION__);
 
 	if(handle == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return 0;
 	}
 		
@@ -256,7 +256,7 @@ unsigned int matrix_ringbuf_getDataSize(matrix_ringbuf_handle handle){
 	//LOGV("ENTER %s handle(%p)", __FUNCTION__, (void*)handle);
 
 	if(handle == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return 0;
 	}
 			
@@ -277,7 +277,7 @@ unsigned int matrix_ringbuf_getFreeSize(matrix_ringbuf_handle handle){
 	//LOGV("ENTER %s handle(%p)", __FUNCTION__, (void*)handle);
 
 	if(handle == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return 0;
 	}
 			
@@ -298,10 +298,10 @@ unsigned int matrix_ringbuf_rewind(matrix_ringbuf_handle handle, unsigned int si
 
 	unsigned int len = 0;
 	
-	LOGV("ENTER %s", __FUNCTION__);
+	ALOGV("ENTER %s", __FUNCTION__);
 
 	if(handle == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return 0;
 	}
 			
@@ -318,7 +318,7 @@ unsigned int matrix_ringbuf_rewind(matrix_ringbuf_handle handle, unsigned int si
 
 	ringBuf->out -= len;
 
-	LOGV("EXIT %s rewind len = %u", __FUNCTION__, len);
+	ALOGV("EXIT %s rewind len = %u", __FUNCTION__, len);
 
 	return len;
 
@@ -327,9 +327,9 @@ unsigned int matrix_ringbuf_rewind(matrix_ringbuf_handle handle, unsigned int si
 
 int matrix_ringbuf_reset(matrix_ringbuf_handle handle) {
 	
-	LOGV("ENTER %s", __FUNCTION__);
+	ALOGV("ENTER %s", __FUNCTION__);
 	if(handle == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return MHAL_EINVAL;
 	}
 			
@@ -337,16 +337,16 @@ int matrix_ringbuf_reset(matrix_ringbuf_handle handle) {
 	ringBuf->out = 0;
 	ringBuf->in = 0;
 
-	LOGV("EXIT %s", __FUNCTION__);
+	ALOGV("EXIT %s", __FUNCTION__);
 	return MHAL_SUCCESS;
 }
 
 int matrix_ringbuf_exit(matrix_ringbuf_handle handle) {
 	
-	LOGV("ENTER %s", __FUNCTION__);
+	ALOGV("ENTER %s", __FUNCTION__);
 	
 	if(handle == NULL){
-		LOGE("%s, Invalid Input Params!", __FUNCTION__);
+		ALOGE("%s, Invalid Input Params!", __FUNCTION__);
 		return MHAL_EINVAL;
 	}
 			
@@ -358,7 +358,7 @@ int matrix_ringbuf_exit(matrix_ringbuf_handle handle) {
 	
 	memset(ringBuf, 0, sizeof(_matrix_ringbuf));
 
-	LOGV("EXIT %s", __FUNCTION__);
+	ALOGV("EXIT %s", __FUNCTION__);
 	return MHAL_SUCCESS;
 }
 
