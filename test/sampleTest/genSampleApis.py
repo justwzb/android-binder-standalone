@@ -63,19 +63,19 @@ outfd.write("""\
 #include <unistd.h>
 
 #define SAMPLE_PTR(type,in,pin,pout,pinout,len)   {\\
-    printf("%s:in=%d ",__FUNCTION__,in);\\
+    printf("%s:in=%d ",__FUNCTION__,(int)in);\\
     typeof(in) ret = in;\\
     if(pin!=NULL) {ret += *pin; printf("pin[0]=%d ",(int)pin[0]);}\\
     if(pinout!=NULL) {ret += *pinout; printf("pinout[0]=%d ",(int)pinout[0]);}\\
     printf("=\\n");\\
     int i;\\
     for(i=0;i<len;i++) {\\
-        printf(".ret1=%d\\n",ret);\\
+        printf(".ret1=%d\\n",(int)ret);\\
         if(pout!=NULL) *(pout+i) = ret;\\
-        printf(".ret2=%d\\n",ret);\\
+        printf(".ret2=%d\\n",(int)ret);\\
         if(pinout!=NULL) *(pinout+i) = ret;\\
     }\\
-    printf("\\nret=%d len=%d\\n",ret,sizeof(ret));\\
+    printf("\\nret=%d len=%d\\n",(int)ret,sizeof(ret));\\
     return ret;}\\
 
 """)

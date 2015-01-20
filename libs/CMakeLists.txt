@@ -1,8 +1,24 @@
 FIND_PACKAGE(StandaloneBinder REQUIRED)
 INCLUDE_DIRECTORIES(${StandaloneBinder_INCLUDE_DIR})
 
+FIND_PACKAGE(Kernel REQUIRED)
+INCLUDE_DIRECTORIES(${Kernel_INCLUDE_DIR})
+
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 #binder
-AUX_SOURCE_DIRECTORY(./binder LIB_Binder_SRC)
+SET(LIB_Binder_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/binder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/BpBinder.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/IPCThreadState.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/IServiceManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Parcel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/ProcessState.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Static.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/BufferedTextOutput.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/IInterface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/TextOutput.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Debug.cpp
+)
 
 #liblog
 SET(LIB_Log_SRC
@@ -19,7 +35,7 @@ SET(LIB_Utils_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/Unicode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/VectorImpl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/Timers.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/libutils/SystemClock.cpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/libutils/SystemClock.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/Threads.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/misc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/SharedBuffer.cpp
@@ -71,7 +87,7 @@ ADD_LIBRARY(StandaloneBinder SHARED
     ${LIB_Log_SRC}
     ${LIB_Utils_SRC}
     ${LIB_Cutils_SRC}
-#    ${LIB_Bionic_SRC}
+    ${LIB_Bionic_SRC}
     ${LIB_SBINDER_SRC}
 )
 TARGET_LINK_LIBRARIES(StandaloneBinder ${CMAKE_BINDER_LINKLIBS})

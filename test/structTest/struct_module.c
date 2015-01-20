@@ -67,7 +67,7 @@ int unflag_struct_api(STRUCT_UNFLAT_S* pin,STRUCT_UNFLAT_S* pout) {
 
         int i;
         for(i=0;i<pin->len;i++) {
-            printf("%d ",pin->buf);
+            printf("%s ",pin->buf);
         }
         printf("\n");
 

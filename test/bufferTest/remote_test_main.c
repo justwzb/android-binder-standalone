@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #if defined(BINDER_SERVICE)
 

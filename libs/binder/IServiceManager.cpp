@@ -48,6 +48,7 @@ sp<IServiceManager> defaultServiceManager()
     return gDefaultServiceManager;
 }
 
+#if 0
 bool checkCallingPermission(const String16& permission)
 {
     return checkCallingPermission(permission, NULL, NULL);
@@ -121,6 +122,7 @@ bool checkPermission(const String16& permission, pid_t pid, uid_t uid)
         }
     }
 }
+#endif
 
 // ----------------------------------------------------------------------
 

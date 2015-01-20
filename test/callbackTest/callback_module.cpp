@@ -1,6 +1,7 @@
 #include "callback_module.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <pthread.h>
 #include <utils/Log.h>
 #include <utils/Mutex.h>

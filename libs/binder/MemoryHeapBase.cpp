@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#undef HAVE_ANDROID_OS  //lihui: this module can not work on android mode
+
 #define LOG_TAG "MemoryHeapBase"
 
 #include <stdlib.h>

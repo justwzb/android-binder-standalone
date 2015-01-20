@@ -22,11 +22,11 @@ public:
         ICallback(void* callback,void* cookie)
             :_callback(callback)
             ,_cookie(cookie) {
-            ALOGV("%s client %p-%p create\n",__FUNCTION__,_callback);
+            ALOGV("%s client %p-%p create\n",__FUNCTION__,_callback,_cookie);
         }
 
         ~ICallback() {
-            ALOGV("%s client %p-%p destory\n",_descriptor.string(),_callback);
+            ALOGV("%s client %p-%p destory\n",(char*)_descriptor.string(),_callback,_cookie);
         }
 
         virtual const String16& getInterfaceDescriptor() const {
