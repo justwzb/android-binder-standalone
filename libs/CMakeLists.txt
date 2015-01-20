@@ -13,11 +13,11 @@ SET(LIB_Binder_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/binder/IServiceManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/binder/Parcel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/binder/ProcessState.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Static.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/BufferedTextOutput.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/binder/IInterface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/TextOutput.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Debug.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/TextOutput.cpp #todo
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Static.cpp #todo
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/BufferedTextOutput.cpp #todo
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Debug.cpp #todo
 )
 
 #liblog
@@ -35,11 +35,11 @@ SET(LIB_Utils_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/Unicode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/VectorImpl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/Timers.cpp
-#    ${CMAKE_CURRENT_SOURCE_DIR}/libutils/SystemClock.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/Threads.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/misc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/SharedBuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libutils/Static.cpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/libutils/SystemClock.cpp
     #on android, below files are only added on device.
     #${CMAKE_CURRENT_SOURCE_DIR}/libutils/Trace.cpp
 )
