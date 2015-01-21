@@ -54,6 +54,7 @@ py*/
 
 #define LOG_TAG     "%=sidl_basename%"
 
+#include <string.h>
 #include <utils/RefBase.h>
 #include <binder/IInterface.h>
 #include <binder/Parcel.h>
@@ -190,7 +191,7 @@ for ctx in sidl_context:
                             output("""
                     Parcel::ReadableBlob _%(name)s_rblob;
                     data.readBlob(_%(name)s_len,&_%(name)s_rblob);
-                    %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_rblob.data();
+                    %(name)s = (%(qualifier)s%(typ)s*)_%(name)s_rblob.data();
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
 
                         elif not inflag and outflag:
@@ -411,13 +412,13 @@ for ctx in sidl_context:
                 data.writeInt32(-1);
             }
             else {
-                data.writeInt32((int)%(len)s * sizeof(%(typ)s));//write length, only support 32 bits length yet
+                data.writeInt32((int)(%(len)s) * sizeof(%(typ)s));//write length, only support 32 bits length yet
                 """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
                         if inflag:
                             output("""
                 Parcel::WritableBlob _%(name)s_wblob;
-                data.writeBlob(%(len)s * sizeof(%(typ)s),&_%(name)s_wblob);
-                memcpy(_%(name)s_wblob.data(),%(name)s,%(len)s* sizeof(%(typ)s));
+                data.writeBlob((%(len)s) * sizeof(%(typ)s),&_%(name)s_wblob);
+                memcpy(_%(name)s_wblob.data(),%(name)s,(%(len)s)* sizeof(%(typ)s));
             }
 """ % {"qualifier":qualifier,"typ":typ,"name":name,"star":star,"len":len})
                         else:

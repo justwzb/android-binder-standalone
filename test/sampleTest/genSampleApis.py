@@ -43,6 +43,8 @@ for typ in types:
 outfd.write("""
 void sample_void_oneshot(void);
 
+void sample_cstring(const char* str);
+
 #ifdef __cplusplus
 }
 #endif
@@ -95,6 +97,10 @@ outfd.write("""
 void sample_void_oneshot(void) {
     printf("sample_void_oneshot");
 }
+
+void sample_cstring(const char* str) {
+    printf("sample_cstring[%s]\\n",str);
+}
 """)
 outfd.close()
 outfd = None
@@ -118,6 +124,9 @@ for typ in types:
 
 outfd.write("""
 {oneway}void sample_void_oneshot(void);
+
+void sample_cstring(const char*{in}{len:(strlen(str)+1)} str);
+
 """)
 
 outfd.close()

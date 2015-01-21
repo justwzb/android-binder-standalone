@@ -64,7 +64,7 @@ def t_ccode_ID(t):
     return t
 
 def t_ccode_TAG(t):
-    r'{[a-z0-9:\*]*}'
+    r'{[a-z0-9:\*\(\)\+\-\/]*}'
     t.value = t.value
     return t
 
@@ -248,17 +248,6 @@ def parse(f):
                 if l == None:
                   print("Erros, paramter %s of %s is a pointer without length tag, please add {len:length}" % (arg.getName(),ctx.getName()))
                   return None
-                elif "1" != l:
-                  found = False
-                  for arg1 in args:
-                    if l == arg1.getName():
-                      found = True
-                      break
-                  if not found:
-                    print("Erros, len of paramter %s of %s, %s is not a paramter, please check" % (arg.getName(),ctx.getName(),l))
-                    return None
-
-
 
                 if not arg.hasInFlag() and not arg.hasOutFlag():
                   print("Erros, paramter %s of %s is a pointer without inout tag, please add {in} {out} or {inout}" % (arg.getName(),ctx.getName()))
