@@ -64,7 +64,7 @@ def t_ccode_ID(t):
     return t
 
 def t_ccode_TAG(t):
-    r'{[a-z0-9:\*\(\)\+\-\/]*}'
+    r'{[^}]*}'
     t.value = t.value
     return t
 
