@@ -14,10 +14,10 @@ SET(LIB_Binder_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/binder/Parcel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/binder/ProcessState.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/binder/IInterface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/TextOutput.cpp #todo
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Static.cpp #todo
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/BufferedTextOutput.cpp #todo
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Debug.cpp #todo
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Static.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/TextOutput.cpp #ProcessState.cpp used it alot
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/BufferedTextOutput.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Debug.cpp
 )
 
 #liblog
