@@ -20,6 +20,7 @@
 #define _LINUX_ASHMEM_H
 #include <linux/limits.h>
 #include <linux/ioctl.h>
+#include <asm/types.h>
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
 #define ASHMEM_NAME_LEN 256
 #define ASHMEM_NAME_DEF "dev/ashmem"

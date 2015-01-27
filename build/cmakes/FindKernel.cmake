@@ -1,23 +1,23 @@
 #include kernel headers
 IF(CMAKE_TARGET_ARCH STREQUAL "arm")
     set(KERNEL_INCLUDE_DIR_ARCH
-        ${PROJECT_SOURCE_DIR}/libs/include/kernel/arch-arm
+        ${PROJECT_SOURCE_DIR}/libs/bionic/libc/kernel/arch-arm
     )
 ELSEIF(CMAKE_TARGET_ARCH STREQUAL "mips")
     set(KERNEL_INCLUDE_DIR_ARCH
-        ${PROJECT_SOURCE_DIR}/libs/include/kernel/arch-mips
+        ${PROJECT_SOURCE_DIR}/libs/bionic/libc/kernel/arch-mips
     )
 ELSEIF(CMAKE_TARGET_ARCH STREQUAL "x86")
     set(KERNEL_INCLUDE_DIR_ARCH
-        ${PROJECT_SOURCE_DIR}/libs/include/kernel/arch-x86
+        ${PROJECT_SOURCE_DIR}/libs/bionic/libc/kernel/arch-x86
     )
 ELSE()
     MESSAGE(FATAL_ERROR "Unknown arch $ENV{CMAKE_TARGET_ARCH}")
 ENDIF()
 
 set(Kernel_INCLUDE_DIR
+    ${PROJECT_SOURCE_DIR}/libs/bionic/libc/kernel/common
     ${KERNEL_INCLUDE_DIR_ARCH}
-    ${PROJECT_SOURCE_DIR}/libs/include/kernel/common
 )
 
 IF (Kernel_INCLUDE_DIR)
