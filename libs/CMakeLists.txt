@@ -1,10 +1,9 @@
 FIND_PACKAGE(StandaloneBinder REQUIRED)
 INCLUDE_DIRECTORIES(${StandaloneBinder_INCLUDE_DIR})
 
-FIND_PACKAGE(Kernel REQUIRED)
-INCLUDE_DIRECTORIES(${Kernel_INCLUDE_DIR})
+FIND_PACKAGE(KModule REQUIRED)
+INCLUDE_DIRECTORIES(${KModule_INCLUDE_DIR})
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 #binder
 SET(LIB_Binder_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/binder/binder.cpp
@@ -70,8 +69,8 @@ SET(LIB_Cutils_SRC
 )
 
 #bionic, only very limited needed c files are added
-SET(LIB_Bionic_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/bionic/libc/string/strlcpy.c
+SET(LIB_SBINDER_UTILS_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/sbinderutils/strlcpy.c
 )
 
 #sbinder, code added in this project
@@ -87,7 +86,7 @@ ADD_LIBRARY(StandaloneBinder SHARED
     ${LIB_Log_SRC}
     ${LIB_Utils_SRC}
     ${LIB_Cutils_SRC}
-    ${LIB_Bionic_SRC}
+    ${LIB_SBINDER_UTILS_SRC}
     ${LIB_SBINDER_SRC}
 )
 TARGET_LINK_LIBRARIES(StandaloneBinder ${CMAKE_BINDER_LINKLIBS})
