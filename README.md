@@ -1,8 +1,6 @@
 android-binder-standalone
 =========================
 
-Try to removing bionic in this branch!
-
 standalone binder from android with ipc demo including:
 
 * sample remote calls
@@ -38,3 +36,8 @@ https://android.googlesource.com/platform/bionic/+/android-4.4.4_r2.0.1
 
 kernel module
 https://android.googlesource.com/kernel/common/+log/android-3.10 42df511
+
+
+TODO List:
+* removing bionic in this branch!       OK
+* Run on 64bits platform
