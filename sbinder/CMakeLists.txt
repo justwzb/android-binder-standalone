@@ -35,5 +35,5 @@ ADD_LIBRARY(StandaloneBinder SHARED
     ${LIB_SBINDER_SRC}
 )
 TARGET_LINK_LIBRARIES(StandaloneBinder ${CMAKE_BINDER_LINKLIBS})
-ADD_DEPENDENCIES(StandaloneBinder AndroidToolsetsS)
-TARGET_LINK_LIBRARIES(StandaloneBinder AndroidToolsetsS)
+ADD_DEPENDENCIES(StandaloneBinder AndroidToolsets)
+TARGET_LINK_LIBRARIES(StandaloneBinder AndroidToolsets)

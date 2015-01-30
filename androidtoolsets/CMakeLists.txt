@@ -58,17 +58,9 @@ SET(LIB_Bionic_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/bionic/strlcpy.c
 )
 
-ADD_LIBRARY(AndroidToolsetsS STATIC 
+ADD_LIBRARY(AndroidToolsets STATIC 
     ${LIB_Log_SRC}
     ${LIB_Utils_SRC}
     ${LIB_Cutils_SRC}
     ${LIB_Bionic_SRC}
 )
-
-ADD_LIBRARY(AndroidToolsets SHARED 
-    ${LIB_Log_SRC}
-    ${LIB_Utils_SRC}
-    ${LIB_Cutils_SRC}
-    ${LIB_Bionic_SRC}
-)
-
