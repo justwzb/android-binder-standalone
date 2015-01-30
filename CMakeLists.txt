@@ -11,13 +11,13 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/out/$ENV{CMAKE_PLATFORM_NAME}/lib)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/build/cmakes/)
 
 #add moduels to compile
-if(EXISTS ${PROJECT_SOURCE_DIR}/libs)
-    ADD_SUBDIRECTORY(libs)
-endif(EXISTS ${PROJECT_SOURCE_DIR}/libs)
+if(EXISTS ${PROJECT_SOURCE_DIR}/androidtoolsets)
+    ADD_SUBDIRECTORY(androidtoolsets)
+endif(EXISTS ${PROJECT_SOURCE_DIR}/androidtoolsets)
 
-if(EXISTS ${PROJECT_SOURCE_DIR}/kmodule)
-    #ADD_SUBDIRECTORY(kmodule) 
-endif(EXISTS ${PROJECT_SOURCE_DIR}/kmodule)
+if(EXISTS ${PROJECT_SOURCE_DIR}/sbinder)
+    ADD_SUBDIRECTORY(sbinder)
+endif(EXISTS ${PROJECT_SOURCE_DIR}/sbinder)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/servicemanager)
     ADD_SUBDIRECTORY(servicemanager) 
@@ -26,3 +26,8 @@ endif(EXISTS ${PROJECT_SOURCE_DIR}/servicemanager)
 if(EXISTS ${PROJECT_SOURCE_DIR}/test)
     ADD_SUBDIRECTORY(test) 
 endif(EXISTS ${PROJECT_SOURCE_DIR}/test)
+
+
+if(EXISTS ${PROJECT_SOURCE_DIR}/kmodule)
+    #ADD_SUBDIRECTORY(kmodule) 
+endif(EXISTS ${PROJECT_SOURCE_DIR}/kmodule)

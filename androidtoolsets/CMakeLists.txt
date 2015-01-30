@@ -1,23 +1,8 @@
-FIND_PACKAGE(StandaloneBinder REQUIRED)
-INCLUDE_DIRECTORIES(${StandaloneBinder_INCLUDE_DIR})
+FIND_PACKAGE(AndroidToolsets REQUIRED)
+INCLUDE_DIRECTORIES(${AndroidToolsets_INCLUDE_DIR})
 
 FIND_PACKAGE(KModule REQUIRED)
 INCLUDE_DIRECTORIES(${KModule_INCLUDE_DIR})
-
-#binder
-SET(LIB_Binder_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/binder.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/BpBinder.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/IPCThreadState.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/IServiceManager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Parcel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/ProcessState.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/IInterface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Static.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/TextOutput.cpp #ProcessState.cpp used it alot
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/BufferedTextOutput.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/binder/Debug.cpp
-)
 
 #liblog
 SET(LIB_Log_SRC
@@ -45,7 +30,7 @@ SET(LIB_Utils_SRC
 
 #libcutils
 SET(LIB_Cutils_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/atomic.c   #atomic.c.arm?
+    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/atomic.c
     ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/process_name.c
     ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/sched_policy.c
     ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/threads.c
@@ -69,24 +54,21 @@ SET(LIB_Cutils_SRC
 )
 
 #bionic, only very limited needed c files are added
-SET(LIB_SBINDER_UTILS_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/sbinderutils/strlcpy.c
+SET(LIB_Bionic_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/bionic/strlcpy.c
 )
 
-#sbinder, code added in this project
-SET(LIB_SBINDER_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/sbinder/RemoteCallbackList.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/sbinder/ICallbackList.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/sbinder/sbinderServ.cpp
-)
-
-
-ADD_LIBRARY(StandaloneBinder SHARED 
-    ${LIB_Binder_SRC}
+ADD_LIBRARY(AndroidToolsetsS STATIC 
     ${LIB_Log_SRC}
     ${LIB_Utils_SRC}
     ${LIB_Cutils_SRC}
-    ${LIB_SBINDER_UTILS_SRC}
-    ${LIB_SBINDER_SRC}
+    ${LIB_Bionic_SRC}
 )
-TARGET_LINK_LIBRARIES(StandaloneBinder ${CMAKE_BINDER_LINKLIBS})
+
+ADD_LIBRARY(AndroidToolsets SHARED 
+    ${LIB_Log_SRC}
+    ${LIB_Utils_SRC}
+    ${LIB_Cutils_SRC}
+    ${LIB_Bionic_SRC}
+)
+
