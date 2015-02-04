@@ -43,7 +43,8 @@ class Mutex {
 public:
     enum {
         PRIVATE = 0,
-        SHARED = 1
+        SHARED = 1,
+        RECURSIVE = 2
     };
     
                 Mutex();
@@ -101,6 +102,13 @@ inline Mutex::Mutex(int type, __attribute__((unused)) const char* name) {
         pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
         pthread_mutex_init(&mMutex, &attr);
         pthread_mutexattr_destroy(&attr);
+    } else if(type == RECURSIVE) {
+        pthread_mutexattr_t attr;
+        pthread_mutexattr_init(&attr);
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+        pthread_mutex_init(&mMutex, &attr);
+        pthread_mutexattr_destroy(&attr);
+
     } else {
         pthread_mutex_init(&mMutex, NULL);
     }

@@ -1,0 +1,225 @@
+#include "tos_tcli.h"
+#include "clog.h"
+
+#include <utils/Mutex.h>
+#include <cutils/hashmap.h>
+#include <string.h>
+#include <stdarg.h>
+
+using namespace android;
+
+#define _MAX_ARGS   10  ///< 最大参数个数
+typedef void (*_tcli_func)(int a1,int a2,int a3,int a4,int a5,int a6,int a7,int a8,int a9,int a10);
+
+static int _hash(void* key) {
+    return hashmapHash(key,strlen((char*)key));
+}
+
+static bool _equals(void* keyA, void* keyB) {
+    return (0 == strcmp((char*)keyA,(char*)keyB));
+}
+
+static void _ltrim (char *s)
+{
+    int l = 0, p = 0, k = 0;
+    if (s == 0)
+        return;
+
+    l = strlen (s);
+    if (l == 0)
+        return;
+
+    while (s[p] == ' ' || s[p] == '\t')
+        p++;
+    if (p == 0)
+        return;
+
+    while (s[k] != '\0')
+        s[k++] = s[p++];
+    return;
+}
+
+static Mutex s_mutex(Mutex::RECURSIVE, "tcli");
+static Hashmap* s_cmdTable = hashmapCreate(16,_hash,_equals);
+static tos_tcli_onOutput s_output = NULL;
+static void* s_userdata = NULL;
+
+class TCLICommand {
+private:
+    const char * _name;                   /* the command name */
+    const char * _shortHelp;              /* short help string */
+    const char * _longHelp;               /* long help string */
+    const char * _argParse;               /* a string of s (string) or i (integer) */
+    _tcli_func _func;                     /* function pointer for command */
+
+public:
+    TCLICommand(const char* name,const char *shortHelp,const char *longHelp,const char *argParse, void *func)
+        :_name(name)
+        ,_shortHelp(shortHelp)
+        ,_longHelp(longHelp)
+        ,_argParse(argParse)
+        ,_func((_tcli_func)func) {
+    }
+
+    const _tcli_func getFunc() {
+        return _func;
+    }
+
+    void exec(int argc,char* argv[]) {
+        int args[_MAX_ARGS];
+        memset(args,0,sizeof(args));
+
+        int argCnt = strlen(_argParse);
+        CLOGI("argCnt=%d %d\n",argCnt,argc);
+        argCnt = SITA_MIN(argCnt,argc);
+        argCnt = SITA_MIN(argCnt,_MAX_ARGS);
+
+        for(int i=0;i<argCnt;i++) {
+            _ltrim(argv[i]);
+
+            switch (_argParse[i]) {
+                case 'i': {
+                    if(argv[i] != NULL) {
+                        args[i] = atoi(argv[i]);
+                    }
+                }
+                break;
+
+                case 's': {
+                    args[i] = (int)argv[i];
+                }
+                break;
+
+                default: {
+                    CLOG_ASSERT(0,"_argParse error %s[%d]",_argParse,i);
+                }
+                break;
+            }
+        }
+
+        tos_tcli_printf("Run %s\n",_name);
+        _func(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9]);
+        tos_tcli_printf("Run %s end\n",_name);
+    }
+};
+
+#if defined(__GNUC__)
+static int _tcli_destroy(void) __attribute__((destructor));
+#else
+#error TOS_TCLI_COMMAND() for this configuration must be defined
+#endif
+
+static int _tcli_destroy(void) {
+    CLOGI("%s...\n",__FUNCTION__);
+    Mutex::Autolock _l(s_mutex);
+
+    CLOGI("%s... success\n",__FUNCTION__);
+    return SITA_SUCCESS;
+}
+
+int tos_tcli_init(void) {
+    CLOGI("%s...\n",__FUNCTION__);
+    Mutex::Autolock _l(s_mutex);
+
+    if (sizeof(int) != sizeof(void*)) {
+        CLOG_ASSERT(sizeof(int) == sizeof(void*),"tcli can not run on this platform ,%d != %d!!!",sizeof(int),sizeof(void*));
+        return SITA_FAILED;
+    }
+
+    CLOGI("%s...success\n",__FUNCTION__);
+    return SITA_SUCCESS;
+}
+
+int tos_tcli_destroy(void) {
+    return _tcli_destroy();
+}
+
+void tos_tcli_printf(const char* fmt,...) {
+    Mutex::Autolock _l(s_mutex);
+
+    char buf[1024];
+    va_list arg;
+    va_start(arg,fmt);
+    vsnprintf(buf,sizeof(buf),fmt,arg);
+    va_end(arg);
+
+    if(s_output != NULL) {
+        s_output(buf,s_userdata);
+        CLOGCLI("%s",buf);
+    }
+}
+
+int tos_tcli_addCommand(const char* name,const char *shortHelp,const char *longHelp,const char *argParse, void *func) {
+    CLOGI("%s...%s [%s] %p\n",__FUNCTION__,name,argParse,func);
+
+    if(name == NULL || argParse == NULL || func == NULL )
+    {
+        CLOGW_WITHCODE(SITA_EINVAL, "%s %s:func 0x%p,argParse:%s failed\n",__FUNCTION__,name,func,argParse);
+        return SITA_EINVAL;
+    }
+
+    int argCnt = strlen(argParse);
+    if(argCnt > _MAX_ARGS)
+    {
+        CLOGW_WITHCODE(SITA_EINVAL, "%s %s:argParse(%s) too long\n",__FUNCTION__,name,argParse);
+        return SITA_EINVAL;
+    }
+
+    for(int i=0;i<argCnt;i++)
+    {
+        if(argParse[i] != 'i' && argParse[i] != 's')
+        {
+            CLOGW_WITHCODE(SITA_EINVAL, "%s %s:argParse(%s) error, must 'i' or 's' only\n",__FUNCTION__,name,argParse);
+            return SITA_EINVAL;
+        }
+    }
+
+    Mutex::Autolock _l(s_mutex);
+
+    TCLICommand* cmd = new TCLICommand(name,shortHelp,longHelp,argParse,func);
+    if(cmd == NULL) {
+        CLOG_ASSERT(cmd != NULL,"new TCLICommand for %s failed",name);
+        return SITA_ENOMEM;
+    }
+
+    TCLICommand* oldcmd = (TCLICommand*)hashmapPut(s_cmdTable,(void*)name,cmd);
+    if(oldcmd != NULL) {
+        CLOGW("cmd %s replaced %p ==> %p\n",name,oldcmd->getFunc(),func);
+        delete oldcmd;
+        oldcmd = NULL;
+    }
+
+    CLOGI("%s...name=%s success\n",__FUNCTION__,name);
+    return SITA_SUCCESS;
+}
+
+int tos_tcli_executeByargs(int argc,char* argv[],tos_tcli_onOutput out,void* userdata) {
+    CLOGI("%s...\n",__FUNCTION__);
+    if(argc < 1 || argv == NULL) {
+        CLOGW_WITHCODE(SITA_EINVAL, "%s argc=%d argv=%p error\n",__FUNCTION__,argc,argv);
+        return SITA_EINVAL;
+    }
+
+    if(argv[0] == NULL) {
+        CLOGW_WITHCODE(SITA_EINVAL, "%s cmd null\n",__FUNCTION__,argc,argv);
+        return SITA_EINVAL;
+    }
+
+    Mutex::Autolock _l(s_mutex);
+    const char* cmdstr = argv[0];
+
+    TCLICommand* cmd = (TCLICommand*)hashmapGet(s_cmdTable,(void*)cmdstr);
+    if(cmd == NULL) {
+        CLOGW_WITHCODE(SITA_EINVAL, "%s cmd(%s) not found\n",__FUNCTION__,cmdstr);
+        return SITA_EINVAL;
+    }
+
+    s_output = out;
+    s_userdata = userdata;
+    cmd->exec(argc-1,argv+1);
+    s_output = NULL;
+    s_userdata = NULL;
+
+    CLOGI("%s...success\n",__FUNCTION__);
+    return SITA_SUCCESS;
+}

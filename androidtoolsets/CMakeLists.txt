@@ -35,6 +35,7 @@ SET(LIB_Cutils_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/sched_policy.c
     ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/threads.c
     ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/native_handle.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/hashmap.c
 
     #for ashmem, device only on android, but kernel module needed
     ${CMAKE_CURRENT_SOURCE_DIR}/libcutils/ashmem-dev.c
