@@ -189,6 +189,7 @@ IMPLEMENT_META_INTERFACE(ServiceManager, "android.os.IServiceManager");
 
 // ----------------------------------------------------------------------
 
+#if 0   //lihui, this class is useless, service_manager.c is the server
 status_t BnServiceManager::onTransact(
     uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags)
 {
@@ -230,5 +231,6 @@ status_t BnServiceManager::onTransact(
             return BBinder::onTransact(code, data, reply, flags);
     }
 }
+#endif
 
 }; // namespace android
