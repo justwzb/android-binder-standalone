@@ -22,6 +22,7 @@ extern "C" {
 添加后,可通过tcli命令行工具使用该命令.
 
 @note 调用者需保证所有的字符串一直有效.
+@note 在func中的打印,建议使用tos_tcli_printf输出到TCLI工具上.
 
 @code 示例代码
 static void run_my_cmd(int i,char* s)
