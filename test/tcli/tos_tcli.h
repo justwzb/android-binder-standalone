@@ -13,6 +13,9 @@
 extern "C" {
 #endif
 
+
+#if defined(__GNUC__)
+
 /**
 @brief 自动添加TCLI命令的宏,在代码的任意位置使用该宏实现自动注册.
 
@@ -34,11 +37,40 @@ TOS_TCLI_COMMAND(mycmd,"short help of mycmd","long help\nof mycmd","is",run_my_c
 @param[in] argParse 有s(表示字符串)和i(表示整数)组成的参数描述符.如"isi"表示命令函数的第一个参数为int,第二个为const char*,第三个为int.
 @param[in] func 执行此语句的函数.
 */
-#if defined(__GNUC__)
 #define TOS_TCLI_COMMAND(name, shortHelp, longHelp, argParse, func) \
     __attribute__((constructor)) static void TCLICMD_##name(){tos_tcli_addCommand(#name, shortHelp, longHelp, argParse, func);}
+
+/**
+@brief 自动添加TCLI int型控制命令宏,在代码的任意位置使用该宏实现自动注册.
+
+添加之后可以直接使用以下命令:
+- intTarget : 查看*target的值
+- intTarget = value : 将*target赋值为value
+
+@note 调用者需保证所有的字符串一直有效.
+
+@code 示例代码
+static int s_currentValue = 0;
+TOS_TCLI_INTERGER(s_currentValue,"short help of s_currentValue","long help\nof s_currentValue");
+@endcode
+
+@param[in] intTarget 待控制的变量名,必须是一个int类型(或者兼容的)
+@param[in] shortHelp 简短帮助,使用help命令列出所有命令时,简短帮助会列到命令的后面.
+@param[in] longHelp 详细帮助,使用help 命令名称命令时,会列出这些信息.
+*/
+#define TOS_TCLI_INTERGER(intTarget, shortHelp, longHelp) \
+    static void TCLIINTERGER_##intTarget_cmdfunc(char* opt,int value) {    \
+        if(opt != NULL && strcmp(opt,"=") == 0) {   \
+            tos_tcli_printf("%s:%d ==> %d\n",#intTarget,(intTarget),value);  \
+            (intTarget) = value;    \
+        }else { \
+            tos_tcli_printf("%s=%d\n",#intTarget,(intTarget)); \
+        } \
+    };\
+    __attribute__((constructor)) static void TCLIINTERGER_##intTarget(){tos_tcli_addCommand(#intTarget, shortHelp, longHelp, "si",TCLIINTERGER_##intTarget_cmdfunc);}
 #else
 #error TOS_TCLI_COMMAND() for this configuration must be defined
+#error TOS_TCLI_INTERGER() for this configuration must be defined
 #endif
 
 /**
@@ -81,7 +113,6 @@ void tos_tcli_printf(const char* fmt,...);
 @return return 成功返回0,失败返回<0的错误代码.
 */
 int tos_tcli_addCommand(const char* name,const char *shortHelp,const char *longHelp,const char *argParse, void *func);
-
 
 /**
 @brief 执行一条TCLI命令(暂未实现)

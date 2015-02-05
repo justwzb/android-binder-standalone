@@ -7,6 +7,9 @@ static void run_my_cmd(int i,char* s) {
 }
 TOS_TCLI_COMMAND(mycmd,"my command","long help\n of my command\n","is",run_my_cmd);
 
+static int s_myvalue = 0;
+TOS_TCLI_INTERGER(s_myvalue,"short help of s_currentValue","long help\nof s_currentValue");
+
 
 static void my_output(const char* prompt,void* userdata) {
     printf("[CLI]%s",prompt);
