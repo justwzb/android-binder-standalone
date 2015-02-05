@@ -39,7 +39,7 @@ TOS_TCLI_COMMAND(mycmd,"short help of mycmd","long help\nof mycmd","is",run_my_c
 @param[in] func 执行此语句的函数.
 */
 #define TOS_TCLI_COMMAND(name, shortHelp, longHelp, argParse, func) \
-    __attribute__((constructor)) static void TCLICMD_##name(){tos_tcli_addCommand(#name, shortHelp, longHelp, argParse, func);}
+    __attribute__((constructor)) static void TCLICMD_##name(){tos_tcli_addCommand(#name, shortHelp, longHelp, argParse, (void*)func);}
 
 /**
 @brief 自动添加TCLI int型控制命令宏,在代码的任意位置使用该宏实现自动注册.
@@ -68,7 +68,7 @@ TOS_TCLI_INTERGER(s_currentValue,"short help of s_currentValue","long help\nof s
             tos_tcli_printf("%s=%d\n",#intTarget,(intTarget)); \
         } \
     };\
-    __attribute__((constructor)) static void TCLIINTERGER_##intTarget(){tos_tcli_addCommand(#intTarget, shortHelp, longHelp, "si",TCLIINTERGER_##intTarget_cmdfunc);}
+    __attribute__((constructor)) static void TCLIINTERGER_##intTarget(){tos_tcli_addCommand(#intTarget, "[int value]"shortHelp, longHelp"\nType '"#intTarget"' to show its value\nType '"#intTarget" = v' to set its value to v", "si",(void*)TCLIINTERGER_##intTarget_cmdfunc);}
 #else
 #error TOS_TCLI_COMMAND() for this configuration must be defined
 #error TOS_TCLI_INTERGER() for this configuration must be defined
