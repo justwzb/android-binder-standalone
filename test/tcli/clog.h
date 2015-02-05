@@ -7,13 +7,13 @@
 extern "C" {
 #endif
 
-#define CLOGV(...)   printf(__VA_ARGS__)
-#define CLOGD(...)   printf(__VA_ARGS__)
-#define CLOGI(...)   printf(__VA_ARGS__)
+#define CLOGV(...)   //printf(__VA_ARGS__)
+#define CLOGD(...)   //printf(__VA_ARGS__)
+#define CLOGI(...)   //printf(__VA_ARGS__)
 #define CLOGW(...)   printf(__VA_ARGS__)
 #define CLOGE(...)   printf(__VA_ARGS__)
 #define CLOGF(...)   printf(__VA_ARGS__)
-#define CLOGCLI(...) printf(__VA_ARGS__)
+#define CLOGCLI(...) //printf(__VA_ARGS__)
 
 /**
 @brief 带错误代码的WARN信息打印函数,建议所有函数返回错误前都调用本系列接口输出错误代码,以方便终端管理对这些错误进行监控和预警.

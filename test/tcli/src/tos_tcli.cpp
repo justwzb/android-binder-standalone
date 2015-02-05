@@ -5,10 +5,12 @@
 #include <cutils/hashmap.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 using namespace android;
 
 #define _MAX_ARGS   10  ///< 最大参数个数
+#define _CMD_MAX_LEN    1024    ///< 一条命令的最大长度
 typedef void (*_tcli_func)(int a1,int a2,int a3,int a4,int a5,int a6,int a7,int a8,int a9,int a10);
 
 static int _hash(void* key) {
@@ -70,7 +72,7 @@ public:
         memset(args,0,sizeof(args));
 
         int argCnt = strlen(_argParse);
-        CLOGI("argCnt=%d %d\n",argCnt,argc);
+        CLOGI("argc=%d wants argCnt(%d)\n",argCnt,argc);
         argCnt = SITA_MIN(argCnt,argc);
         argCnt = SITA_MIN(argCnt,_MAX_ARGS);
 
@@ -100,6 +102,17 @@ public:
         tos_tcli_printf("Run %s\n",_name);
         _func(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9]);
         tos_tcli_printf("Run %s end\n",_name);
+    }
+
+    void showshortHelp(void) {
+        tos_tcli_printf("\t%-32s -\t%s\n",_name,_shortHelp==NULL?"":_shortHelp);
+    }
+
+    void showlongHelp(void) {
+        tos_tcli_printf("%s : %s\n",_name,_shortHelp==NULL?"":_shortHelp);
+        if(_longHelp != NULL) {
+            tos_tcli_printf("%s\n",_longHelp);
+        }
     }
 };
 
@@ -205,6 +218,11 @@ int tos_tcli_executeByargs(int argc,char* argv[],tos_tcli_onOutput out,void* use
         return SITA_EINVAL;
     }
 
+    CLOGV("%s argc=%d\n",__FUNCTION__,argc);
+    for(int i=0;i<argc;i++) {
+        CLOGV("     argv[%d]=[%s]\n",i,argv[i]);
+    }
+
     Mutex::Autolock _l(s_mutex);
     const char* cmdstr = argv[0];
 
@@ -223,3 +241,64 @@ int tos_tcli_executeByargs(int argc,char* argv[],tos_tcli_onOutput out,void* use
     CLOGI("%s...success\n",__FUNCTION__);
     return SITA_SUCCESS;
 }
+
+int tos_tcli_execute(const char* cmd,tos_tcli_onOutput out,void* userdata) {
+    CLOGI("%s...\n",__FUNCTION__);
+    if(cmd == NULL) {
+        CLOGW_WITHCODE(SITA_EINVAL, "%s cmd null\n",__FUNCTION__);
+        return SITA_EINVAL;
+    }
+
+    char cmdcopy[_CMD_MAX_LEN];
+    strncpy(cmdcopy,cmd,_CMD_MAX_LEN);
+    cmdcopy[_CMD_MAX_LEN-1] = 0;
+    CLOGI("%s cmd=[%s]\n",__FUNCTION__,cmdcopy);
+
+    int argc = 0;
+    char* argv[16] = {NULL};
+    const char delim[] = " \t";
+    char *token;
+    
+    token = strtok(cmdcopy, delim);
+    while( token != NULL ) {
+        argv[argc++] = token;
+
+        token = strtok(NULL, delim);
+    }
+
+    return tos_tcli_executeByargs(argc,argv,out,userdata);
+}
+
+static bool _show_short_help(void* key, void* value, void* context) {
+    TCLICommand* cmd = (TCLICommand*)value;
+    if(cmd != NULL) {
+        cmd->showshortHelp();
+    }
+    return true;
+}
+
+static void _showhelp(char* cmd) {
+    Mutex::Autolock _l(s_mutex);
+
+    if(cmd == NULL) {
+        tos_tcli_printf("TCL command-line interface client, version 1.0.0\n");
+        tos_tcli_printf("Type 'help <command>' for help on a specific command.\n");
+        tos_tcli_printf("Available commands:\n");
+
+        hashmapForEach(s_cmdTable,_show_short_help,NULL);
+    }
+    else {
+        TCLICommand* ccmd = (TCLICommand*)hashmapGet(s_cmdTable,(void*)cmd);
+        if(ccmd == NULL) {
+            tos_tcli_printf("Unknown command: '%s'\n",cmd);
+            tos_tcli_printf("Type 'help' for usage.\n");
+        }
+        else {
+            ccmd->showlongHelp();
+        }
+    }
+}
+TOS_TCLI_COMMAND(help,
+    "list all commands and show their helps.",
+    "Type 'help' to list all commands\nType 'help <command>' for help on a specific command.",
+    "s",_showhelp);

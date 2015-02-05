@@ -18,5 +18,7 @@ static void my_output(const char* prompt,void* userdata) {
 int main(int argc,char* argv[]) {
     printf("-----------\n");
     tos_tcli_executeByargs(argc-1,argv+1,my_output,NULL);
+    //tos_tcli_execute(argv[1],my_output,NULL);
     printf("-----------\n");
+    tos_tcli_execute("s_myvalue\t =  \t 124 ",my_output,NULL);
 }
