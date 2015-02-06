@@ -323,7 +323,7 @@ private:
             ALOGW(SERVICE_NAME"_client getFailed!\n");
         }
 
-        return (_binder != NULL)
+        return (_binder != NULL);
     }
 
 public:  
