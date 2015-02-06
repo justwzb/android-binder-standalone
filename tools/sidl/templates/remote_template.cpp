@@ -303,20 +303,33 @@ private:
     static %=sidl_basename%_client* _instance;
     sp<IBinder> _binder;
 
-    %=sidl_basename%_client() {
-        ALOGV(SERVICE_NAME"_client create\n");
-        sp<IServiceManager> sm = defaultServiceManager();
-        _binder = sm->getService(String16(SERVICE_NAME));
+    %=sidl_basename%_client()
+        :_binder(NULL) {
+        ALOGI(SERVICE_NAME"_client create\n");
+        getService();
     }
     
     virtual ~%=sidl_basename%_client() {
-        ALOGV(SERVICE_NAME"_client destory\n");
+        ALOGI(SERVICE_NAME"_client destory\n");
+    }
+
+    inline bool getService(void) {
+        if(_binder == NULL) {
+            sp<IServiceManager> sm = defaultServiceManager();
+            _binder = sm->getService(String16(SERVICE_NAME));
+        }
+
+        if(_binder == NULL) {
+            ALOGW(SERVICE_NAME"_client getFailed!\n");
+        }
+
+        return (_binder != NULL)
     }
 
 public:  
     static %=sidl_basename%_client* Instance() {
         if(_instance == NULL) {
-            ALOGE(SERVICE_NAME"_client Instance");
+            ALOGI(SERVICE_NAME"_client Instance");
             _instance = new %=sidl_basename%_client();
         }
 
@@ -361,13 +374,13 @@ for ctx in sidl_context:
         if retTyp != "void":
             output("""
         %(qualifier)s%(typ)s%(star)s _result;
-        if(_binder == NULL) {
+        if(!getService()) {
             return _result;
         }
 """ % {"qualifier":retQualifier ,"typ":retTyp,"name":ctx.getName(),"star":retStar,"arglist":arglist } )
         else:
             output("""
-        if(_binder == NULL) {
+        if(!getService()) {
             return;
         }
 """)
@@ -474,7 +487,7 @@ for ctx in sidl_context:
             if retTyp == "void":
                 pass
             elif get_parcelType(retTyp,retTags) != None:
-                retParcelType = get_parcelType(typ,tags);
+                retParcelType = get_parcelType(retTyp,retTags);
                 if not retIsPtr:
                     output("""
                 _result = (typeof(_result))reply.read%(parcelType)s();//int as return value
@@ -489,7 +502,9 @@ for ctx in sidl_context:
 
 
             output("""
-            }""")
+            } else {
+                ALOGW(SERVICE_NAME"_client %(name)s error");
+            }"""% {"name":ctx.getName()})
         output("""
         }catch(...) {
             ALOGW(SERVICE_NAME"_client %(name)s error");
