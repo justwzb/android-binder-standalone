@@ -1,0 +1,7 @@
+#include "tos_tcli.h"
+
+int tos_tcli_init(void);
+int tos_tcli_destroy(void);
+void tos_tcli_printf(const char*{len:strlen(buf)}{in} buf);
+int tos_tcli_execute(const char*{len:strlen(cmd)}{in} cmd,tos_tcli_onOutput out,void*{len:1}{in} userdata);
+int tos_tcli_executeByargs(int argc,const char**{len:strlen(argv)}{in} argv,tos_tcli_onOutput out,void*{len:1}{in} userdata);
