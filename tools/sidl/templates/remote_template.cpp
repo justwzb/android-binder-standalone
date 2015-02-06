@@ -92,21 +92,20 @@ private:
     static %=sidl_basename%_service* _instance;
 
     %=sidl_basename%_service(){
-        ALOGV(SERVICE_NAME"_service create");
+        ALOGI(SERVICE_NAME"_service create\n");
     }
     
     virtual ~%=sidl_basename%_service() {
-        ALOGV(SERVICE_NAME"_service destory");
+        ALOGI(SERVICE_NAME"_service destory\n");
     }
 
 public:  
     static int Instance() {
         if(_instance == NULL) {
-            ALOGV(SERVICE_NAME"_service Instance");
             _instance = new %=sidl_basename%_service();
             int ret = defaultServiceManager()->addService(  
                 String16(SERVICE_NAME), _instance );  
-            ALOGV(SERVICE_NAME"_service ret = %d", ret);  
+            ALOGI(SERVICE_NAME"_service Instance %d\n",ret);
             return ret;  
         }
 
@@ -114,7 +113,7 @@ public:
     }
     
     virtual status_t onTransact(uint32_t code , const Parcel& data , Parcel* reply, uint32_t flags) {
-        ALOGV(SERVICE_NAME"_service - onTransact code=%d",code);
+        ALOGD(SERVICE_NAME"_service - onTransact code=%d",code);
 
         switch(code)  {
 /*py
@@ -284,7 +283,7 @@ py*/
         
         }
 
-        ALOGV(SERVICE_NAME"_service end");
+        ALOGD(SERVICE_NAME"_service end");
     }
 }; 
 

@@ -21,26 +21,6 @@ static bool _equals(void* keyA, void* keyB) {
     return (0 == strcmp((char*)keyA,(char*)keyB));
 }
 
-static void _ltrim (char *s)
-{
-    int l = 0, p = 0, k = 0;
-    if (s == 0)
-        return;
-
-    l = strlen (s);
-    if (l == 0)
-        return;
-
-    while (s[p] == ' ' || s[p] == '\t')
-        p++;
-    if (p == 0)
-        return;
-
-    while (s[k] != '\0')
-        s[k++] = s[p++];
-    return;
-}
-
 static Mutex s_mutex(Mutex::RECURSIVE, "tcli");
 static Hashmap* s_cmdTable = hashmapCreate(16,_hash,_equals);
 static tos_tcli_onOutput s_output = NULL;
@@ -67,7 +47,7 @@ public:
         return _func;
     }
 
-    void exec(int argc,char* argv[]) {
+    void exec(int argc,const char* argv[]) {
         int args[_MAX_ARGS];
         memset(args,0,sizeof(args));
 
@@ -77,8 +57,6 @@ public:
         argCnt = SITA_MIN(argCnt,_MAX_ARGS);
 
         for(int i=0;i<argCnt;i++) {
-            _ltrim(argv[i]);
-
             switch (_argParse[i]) {
                 case 'i': {
                     if(argv[i] != NULL) {
@@ -206,7 +184,7 @@ int tos_tcli_addCommand(const char* name,const char *shortHelp,const char *longH
     return SITA_SUCCESS;
 }
 
-int tos_tcli_executeByargs(int argc,char* argv[],tos_tcli_onOutput out,void* userdata) {
+int tos_tcli_executeByargs(int argc,const char* argv[],tos_tcli_onOutput out,void* userdata) {
     CLOGI("%s...\n",__FUNCTION__);
     if(argc < 1 || argv == NULL) {
         CLOGW_WITHCODE(SITA_EINVAL, "%s argc=%d argv=%p error\n",__FUNCTION__,argc,argv);
@@ -255,7 +233,7 @@ int tos_tcli_execute(const char* cmd,tos_tcli_onOutput out,void* userdata) {
     CLOGI("%s cmd=[%s]\n",__FUNCTION__,cmdcopy);
 
     int argc = 0;
-    char* argv[16] = {NULL};
+    const char* argv[16] = {NULL};
     const char delim[] = " \t";
     char *token;
     
