@@ -421,7 +421,7 @@ public:
         /*-- add you code for tos_tcli_execute here --*/
     }
 
-    int tos_tcli_executeByargs( int argc, char* argv[], tos_tcli_onOutput out, void* userdata ) {
+    int tos_tcli_executeByargs( int argc, const char* argv[], tos_tcli_onOutput out, void* userdata ) {
         Parcel data, reply;
 
         /*-- add you code for tos_tcli_executeByargs here --*/
@@ -485,7 +485,7 @@ void tos_tcli_printf(const char* fmt,...) {
 int tos_tcli_execute( const char* cmd, tos_tcli_onOutput out, void* userdata ) {
     return remote_tos_tcli_client::Instance()->tos_tcli_execute(cmd, out, userdata);
 }
-int tos_tcli_executeByargs( int argc, char* argv[], tos_tcli_onOutput out, void* userdata ) {
+int tos_tcli_executeByargs( int argc, const char* argv[], tos_tcli_onOutput out, void* userdata ) {
     return remote_tos_tcli_client::Instance()->tos_tcli_executeByargs(argc, argv, out, userdata);
 }
 
