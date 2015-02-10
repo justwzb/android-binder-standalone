@@ -9,8 +9,6 @@
 
 using namespace android;
 
-#define _MAX_ARGS   10  ///< 最大参数个数
-#define _CMD_MAX_LEN    1024    ///< 一条命令的最大长度
 typedef void (*_tcli_func)(int a1,int a2,int a3,int a4,int a5,int a6,int a7,int a8,int a9,int a10);
 
 static int _hash(void* key) {
@@ -21,10 +19,14 @@ static bool _equals(void* keyA, void* keyB) {
     return (0 == strcmp((char*)keyA,(char*)keyB));
 }
 
+class TCLICommand;
+
 static Mutex s_mutex(Mutex::RECURSIVE, "tcli");
 static Hashmap* s_cmdTable = hashmapCreate(16,_hash,_equals);
 static tos_tcli_onOutput s_output = NULL;
 static void* s_userdata = NULL;
+static const TCLICommand* s_runningCmd = NULL;
+static int s_runningCmdArgCount = -1;
 
 class TCLICommand {
 private:
@@ -43,18 +45,26 @@ public:
         ,_func((_tcli_func)func) {
     }
 
-    const _tcli_func getFunc() {
+    const char* getName() const {
+        return _name;
+    }
+
+    const _tcli_func getFunc() const {
         return _func;
     }
 
+    const char* getArgParse() const {
+        return _argParse;
+    }
+
     void exec(int argc,const char* argv[]) {
-        int args[_MAX_ARGS];
+        int args[TOS_TCLI_MAX_ARGS];
         memset(args,0,sizeof(args));
 
         int argCnt = strlen(_argParse);
         CLOGI("argc=%d wants argCnt(%d)\n",argCnt,argc);
         argCnt = SITA_MIN(argCnt,argc);
-        argCnt = SITA_MIN(argCnt,_MAX_ARGS);
+        argCnt = SITA_MIN(argCnt,TOS_TCLI_MAX_ARGS);
 
         for(int i=0;i<argCnt;i++) {
             switch (_argParse[i]) {
@@ -78,7 +88,11 @@ public:
         }
 
         tos_tcli_printf("Run %s\n",_name);
+        s_runningCmd = this;
+        s_runningCmdArgCount = argCnt;
         _func(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9]);
+        s_runningCmd = NULL;
+        s_runningCmdArgCount = -1;
         tos_tcli_printf("Run %s end\n",_name);
     }
 
@@ -143,15 +157,13 @@ void tos_tcli_printf(const char* fmt,...) {
 int tos_tcli_addCommand(const char* name,const char *shortHelp,const char *longHelp,const char *argParse, void *func) {
     CLOGI("%s...%s [%s] %p\n",__FUNCTION__,name,argParse,func);
 
-    if(name == NULL || argParse == NULL || func == NULL )
-    {
+    if(name == NULL || argParse == NULL || func == NULL ) {
         CLOGW_WITHCODE(SITA_EINVAL, "%s %s:func 0x%p,argParse:%s failed\n",__FUNCTION__,name,func,argParse);
         return SITA_EINVAL;
     }
 
     int argCnt = strlen(argParse);
-    if(argCnt > _MAX_ARGS)
-    {
+    if(argCnt > TOS_TCLI_MAX_ARGS) {
         CLOGW_WITHCODE(SITA_EINVAL, "%s %s:argParse(%s) too long\n",__FUNCTION__,name,argParse);
         return SITA_EINVAL;
     }
@@ -227,9 +239,9 @@ int tos_tcli_execute(const char* cmd,tos_tcli_onOutput out,void* userdata) {
         return SITA_EINVAL;
     }
 
-    char cmdcopy[_CMD_MAX_LEN];
-    strncpy(cmdcopy,cmd,_CMD_MAX_LEN);
-    cmdcopy[_CMD_MAX_LEN-1] = 0;
+    char cmdcopy[TOS_TCLI_CMD_MAX_LEN];
+    strncpy(cmdcopy,cmd,TOS_TCLI_CMD_MAX_LEN);
+    cmdcopy[TOS_TCLI_CMD_MAX_LEN-1] = 0;
     CLOGI("%s cmd=[%s]\n",__FUNCTION__,cmdcopy);
 
     int argc = 0;
@@ -280,3 +292,46 @@ TOS_TCLI_COMMAND(help,
     "list all commands and show their helps.",
     "Type 'help' to list all commands\nType 'help <command>' for help on a specific command.",
     "s",_showhelp);
+
+
+/*---hidden apis for remote_tos_tcli.cpp---*/
+int tos_tcli_removeCommand(const char* name) {
+    CLOGI("%s...%s\n",__FUNCTION__,name);
+
+    if(name == NULL) {
+        CLOGW_WITHCODE(SITA_EINVAL, "%s name null\n",__FUNCTION__);
+        return SITA_EINVAL;
+    }
+
+    Mutex::Autolock _l(s_mutex);
+
+    TCLICommand* cmd = (TCLICommand*)hashmapRemove(s_cmdTable,(void*)name);
+    if(cmd == NULL) {
+        CLOGW_WITHCODE(SITA_EINVAL, "%s name %s not found\n",__FUNCTION__,name);
+        return SITA_EINVAL;
+    }
+
+    delete cmd;
+    cmd = NULL;
+
+    return SITA_SUCCESS;
+}
+
+
+const char* tos_tcli_getExecName() {
+    if(s_runningCmd != NULL) {
+        return s_runningCmd->getName();
+    }
+    return NULL;
+}
+
+const char* tos_tcli_getExecArgParse() {
+    if(s_runningCmd != NULL) {
+        return s_runningCmd->getArgParse();
+    }
+    return NULL;
+}
+
+int tos_tcli_getExecArgCount() {
+    return s_runningCmdArgCount;
+}

@@ -23,10 +23,12 @@
 #define TRANSACTION_tos_tcli_init FIRST_CALL_TRANSACTION + 1
 #define TRANSACTION_tos_tcli_destroy FIRST_CALL_TRANSACTION + 2
 #define TRANSACTION_tos_tcli_printf FIRST_CALL_TRANSACTION + 3
-#define TRANSACTION_tos_tcli_execute FIRST_CALL_TRANSACTION + 4
-#define TRANSACTION_tos_tcli_executeByargs FIRST_CALL_TRANSACTION + 5
+#define TRANSACTION_tos_tcli_addCommand FIRST_CALL_TRANSACTION + 4
+#define TRANSACTION_tos_tcli_execute FIRST_CALL_TRANSACTION + 5
+#define TRANSACTION_tos_tcli_executeByargs FIRST_CALL_TRANSACTION + 6
 
 #define TRANSACTION_CALLBACK_outputcallback FIRST_CALL_TRANSACTION + 100
+#define TRANSACTION_CALLBACK_cmdcallback FIRST_CALL_TRANSACTION + 101
 
 using namespace android;
 
@@ -34,11 +36,25 @@ using namespace android;
 
 #include <stdlib.h>
 #include "remote_tos_tcli.h"
+#include <sbinder/RemoteCallbackList.h>
+
+extern int tos_tcli_removeCommand(const char* name);
+extern const char* tos_tcli_getExecName();
+extern const char* tos_tcli_getExecArgParse();
+extern int tos_tcli_getExecArgCount();
 
 class remote_tos_tcli_service : public BBinder  
 {  
 private:
     static remote_tos_tcli_service* _instance;
+
+    class tos_tcli_RemoteCallbackList : public RemoteCallbackList {
+        void onCallbackDied(sp<IBinder> binder,void* cookie) {
+            tos_tcli_removeCommand((const char*)cookie);
+        }
+    };
+
+    tos_tcli_RemoteCallbackList _cbList;
 
     remote_tos_tcli_service(){
         ALOGI(SERVICE_NAME"_service create\n");
@@ -65,6 +81,75 @@ private:
         else {
             ALOGW(SERVICE_NAME"_servce tos_tcli_onOutput error");
         }
+    }
+
+    static void tcli_cmd(int a1,int a2,int a3,int a4,int a5,int a6,int a7,int a8,int a9,int a10) {
+        ALOGI(SERVICE_NAME"_service tcli_cmd");
+
+        RemoteCallbackList* rcbl = &(_instance->_cbList);
+
+        const char* cmd = tos_tcli_getExecName();
+        const char* argParse = tos_tcli_getExecArgParse();
+        int argCount = tos_tcli_getExecArgCount();
+
+        if(cmd == NULL || argParse == NULL || argCount<0) {
+            ALOGW(SERVICE_NAME"_servce cmd(%s) or argParse(%s) or argCount(%d) null",cmd,argParse,argCount);
+            return;
+        }
+
+        int size = rcbl->beginBroadcast();
+        for(int i=0;i<size;i++) {
+
+            sp<IBinder> binder = rcbl->getBroadcastItem(i);
+            const char* name = (const char*)rcbl->getBroadcastCookie(i);
+
+            if(binder != NULL && strcmp(cmd,name) == 0) {
+                Parcel data, reply;
+                data.writeInterfaceToken(String16(SERVICE_NAME"_CmdCallback"));
+
+                int args[TOS_TCLI_MAX_ARGS];
+                args[0] = a1;
+                args[1] = a2;
+                args[2] = a3;
+                args[3] = a4;
+                args[4] = a5;
+                args[5] = a6;
+                args[6] = a7;
+                args[7] = a8;
+                args[8] = a9;
+                args[9] = a10;
+
+                data.writeInt32(argCount);
+                data.writeCString(argParse);
+                for(int i=0;i<argCount;i++) {
+                    switch (argParse[i]) {
+                        case 'i': {
+                            data.writeInt32(args[i]);
+                        }
+                        break;
+
+                        case 's': {
+                            data.writeCString((const char*)args[i]);
+                        }
+                        break;
+
+                        default: {
+                            ALOGW("argParse error %s[%d]",argParse,i);
+                        }
+                        break;
+                    }
+                }
+
+                binder->transact(TRANSACTION_CALLBACK_cmdcallback, data, &reply, 0);
+
+                if(reply.readExceptionCode() == 0) {//fix check
+                }
+                break;
+            }
+        }
+        rcbl->finishBroadcast();
+
+        ALOGI(SERVICE_NAME"_service tcli_cmd end");
     }
 
 public:  
@@ -139,6 +224,56 @@ public:
                 tos_tcli_printf( buf );
 
                 //-- end code for tos_tcli_printf here --
+            }break;
+            
+            case TRANSACTION_tos_tcli_addCommand:
+            {
+                data.enforceInterface(String16(SERVICE_NAME));  //fixed check
+
+                //-- begin code for tos_tcli_addCommand here, will auoto generated but may change yourself if need --
+
+                //begin paramters list
+                const char* name = data.readCString();
+
+                int _shortHelp_len = data.readInt32(); //read length, only 32bits length support yet
+                const char* shortHelp = NULL;
+                if(_shortHelp_len > 0) {
+                    shortHelp = data.readCString();
+                }
+
+                int _longHelp_len = data.readInt32(); //read length, only 32bits length support yet
+                const char* longHelp = NULL;
+                if(_longHelp_len > 0) {
+                    longHelp = data.readCString();
+                }
+
+                const char* argParse = data.readCString();
+
+                sp<IBinder> binder = data.readStrongBinder();
+
+                if(binder != NULL) {
+
+                    int _result = tos_tcli_addCommand( name, shortHelp, longHelp, argParse, (void*)tcli_cmd );
+
+                    if(_result == 0) {
+                        if(_cbList.registerCallback(binder,(void*)name)) {
+                            reply->writeNoException();
+                            reply->writeInt32(_result); //int as return value
+                        }
+                        else {
+                            reply->writeInt32(-3);//Exception
+                        }
+                    }
+                    else {
+                        reply->writeInt32(-2);//Exception
+                    }
+
+                }
+                else {
+                    reply->writeInt32(-1);//Exception
+                }
+
+                //-- end code for tos_tcli_addCommand here --
                 return NO_ERROR;
             } break;
             
@@ -219,11 +354,14 @@ remote_tos_tcli_service* remote_tos_tcli_service::_instance = NULL;
 #include <stdarg.h>
 #include <sbinder/ICallbackList.h>
 
+typedef void (*_tcli_func)(int a1,int a2,int a3,int a4,int a5,int a6,int a7,int a8,int a9,int a10);
+
 class remote_tos_tcli_client  
 {  
 private:
     static remote_tos_tcli_client* _instance;
     sp<IBinder> _binder;
+    ICallbackList _CmdList;
 
     class OutputCallback : public ICallbackList::ICallback {
     public:
@@ -251,6 +389,71 @@ private:
                     const char* prompt = data.readCString();
 
                     ((tos_tcli_onOutput)_callback)(prompt,_cookie);
+
+                    reply->writeNoException();
+                }
+                else {
+                    reply->writeInt32(-1);//Exception
+                }
+                break;
+            }
+
+            default:
+                return BBinder::onTransact(code, data, reply, flags);
+            }
+
+            return NO_ERROR;
+        }
+    };
+
+    class CmdCallback : public ICallbackList::ICallback {
+    public:
+        CmdCallback(void* cb,void* cookie)
+            :ICallback(cb,cookie) {
+            _descriptor = String16(SERVICE_NAME"_CmdCallback");
+        }
+
+        ~CmdCallback() {
+        }
+
+        virtual status_t onTransact( uint32_t code,
+                const Parcel& data,Parcel* reply,uint32_t flags = 0) {
+            ALOGV(SERVICE_NAME"_client onTransact code=%d\n",code);
+
+            switch (code){
+            case TRANSACTION_CALLBACK_cmdcallback:
+            {
+                if (!data.checkInterface(this)) {
+                    ALOGW(SERVICE_NAME"_client onTransact Interface error\n");
+                    return -1;
+                }
+
+                if(_callback != NULL) {
+                    int argCount = data.readInt32();
+                    const char* argParse = data.readCString();
+                    int args[TOS_TCLI_MAX_ARGS];
+                    memset(args,0,sizeof(args));
+
+                    for(int i=0;i<argCount;i++) {
+                        switch (argParse[i]) {
+                            case 'i': {
+                                args[i] = data.readInt32();
+                            }
+                            break;
+
+                            case 's': {
+                                args[i] = (int)data.readCString();
+                            }
+                            break;
+
+                            default: {
+                                ALOGW("argParse error %s[%d]",argParse,i);
+                            }
+                            break;
+                        }
+                    }
+
+                    ((_tcli_func)_callback)(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9]);
 
                     reply->writeNoException();
                 }
@@ -387,6 +590,68 @@ public:
         /*-- add you code for tos_tcli_printf here --*/
     }
 
+    int tos_tcli_addCommand( const char* name, const char* shortHelp, const char* longHelp, const char* argParse, void* func ) {
+        Parcel data, reply;
+
+        /*-- add you code for tos_tcli_addCommand here --*/
+        int _result = -1;
+        if(name == NULL || argParse == NULL || func == NULL || !getService()) {
+            ALOGW(SERVICE_NAME"_client tos_tcli_addCommand paramters error");
+            return _result;
+        }
+
+        if(_CmdList.findCallback((void*)func,(void*)name) != NULL) {
+            ALOGE(SERVICE_NAME"_client cmd %s arleady added",name);
+            return _result;
+        }
+
+        try {
+            data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
+
+            data.writeCString(name);
+
+            if (shortHelp == NULL) {
+                data.writeInt32(-1);
+            }
+            else {
+                data.writeInt32(1);
+                data.writeCString(shortHelp);
+            }
+
+            if (longHelp == NULL) {
+                data.writeInt32(-1);
+            }
+            else {
+                data.writeInt32(1);
+                data.writeCString(longHelp);
+            }
+
+            data.writeCString(argParse);
+
+
+            sp<CmdCallback> ccmd = new CmdCallback((void*)func,(void*)name);
+            data.writeStrongBinder(ccmd);
+
+            _binder->transact(TRANSACTION_tos_tcli_addCommand,data, &reply,0);
+
+            if(reply.readExceptionCode() == 0) {//fix check
+                _result = (typeof(_result))reply.readInt32();//int as return value
+
+                if(_result == 0) {
+                    _CmdList.addCallback(ccmd);
+                }
+
+            } else {
+                ALOGW(SERVICE_NAME"_client tos_tcli_addCommand error");
+            }
+        }catch(...) {
+            ALOGW(SERVICE_NAME"_client tos_tcli_addCommand error");
+        }
+
+        return _result;
+        /*-- add you code for tos_tcli_addCommand here --*/
+    }
+
     int tos_tcli_execute( const char* cmd, tos_tcli_onOutput out, void* userdata ) {
         Parcel data, reply;
 
@@ -474,13 +739,16 @@ int tos_tcli_destroy(  ) {
     return remote_tos_tcli_client::Instance()->tos_tcli_destroy();
 }
 void tos_tcli_printf(const char* fmt,...) {
-    char buf[1024];
+    char buf[TOS_TCLI_CMD_MAX_LEN];
     va_list arg;
     va_start(arg,fmt);
     vsnprintf(buf,sizeof(buf),fmt,arg);
     va_end(arg);
     buf[sizeof(buf)-1]=0;
     return remote_tos_tcli_client::Instance()->tos_tcli_printf(buf);
+}
+int tos_tcli_addCommand( const char* name, const char* shortHelp, const char* longHelp, const char* argParse, void* func ) {
+    return remote_tos_tcli_client::Instance()->tos_tcli_addCommand(name, shortHelp, longHelp, argParse, func);
 }
 int tos_tcli_execute( const char* cmd, tos_tcli_onOutput out, void* userdata ) {
     return remote_tos_tcli_client::Instance()->tos_tcli_execute(cmd, out, userdata);

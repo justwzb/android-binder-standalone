@@ -13,13 +13,18 @@
 extern "C" {
 #endif
 
+#define TOS_TCLI_MAX_ARGS   10  ///< 最大参数数量,即最多支持多少个参数
+    
+#define TOS_TCLI_CMD_MAX_LEN    1024    ///< 一条命令的最大长度
+
 
 #if defined(__GNUC__)
 
 /**
-@brief 自动添加TCLI命令的宏,在代码的任意位置使用该宏实现自动注册.
+@brief 自动添加TCLI函数命令的宏,在代码的任意位置使用该宏实现自动注册.
 
-添加后,可通过tcli命令行工具使用该命令.
+添加后,可通过tcli命令行工具使用该命令,执行对应的函数.
+这些函数只能有int或者char*类型的参数,且参数须在argParse中描述,参数的最大个数目前为10个.
 
 @note 调用者需保证所有的字符串一直有效.
 @note 在func中的打印,建议使用tos_tcli_printf输出到TCLI工具上.
@@ -44,7 +49,7 @@ TOS_TCLI_COMMAND(mycmd,"short help of mycmd","long help\nof mycmd","is",run_my_c
 /**
 @brief 自动添加TCLI int型控制命令宏,在代码的任意位置使用该宏实现自动注册.
 
-添加之后可以直接使用以下命令:
+添加之后可以直接使用以下命令查看,修改这个int变量的值:
 - intTarget : 查看*target的值
 - intTarget = value : 将*target赋值为value
 
@@ -55,7 +60,7 @@ static int s_currentValue = 0;
 TOS_TCLI_INTERGER(s_currentValue,"short help of s_currentValue","long help\nof s_currentValue");
 @endcode
 
-@param[in] intTarget 待控制的变量名,必须是一个int类型(或者兼容的)
+@param[in] intTarget 待控制的变量名,必须是一个int类型(或者兼容的),且必须是静态/全局变量,即此变量要求一直有效.
 @param[in] shortHelp 简短帮助,使用help命令列出所有命令时,简短帮助会列到命令的后面.
 @param[in] longHelp 详细帮助,使用help 命令名称命令时,会列出这些信息.
 */
@@ -114,6 +119,7 @@ void tos_tcli_printf(const char* fmt,...);
 @return return 成功返回0,失败返回<0的错误代码.
 */
 int tos_tcli_addCommand(const char* name,const char *shortHelp,const char *longHelp,const char *argParse, void *func);
+
 
 /**
 @brief 执行一条TCLI命令(暂未实现)

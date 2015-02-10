@@ -3,5 +3,6 @@
 int tos_tcli_init(void);
 int tos_tcli_destroy(void);
 void tos_tcli_printf(const char*{len:strlen(buf)}{in} buf);
+int tos_tcli_addCommand(const char*{len:strlen(name)}{in} name,const char{len:strlen(shortHelp)}{in} *shortHelp,const char*{len:strlen(longHelp)}{in} longHelp,const char*{len:strlen(argParse)}{in}  argParse, void*{len:1}{in} func);
 int tos_tcli_execute(const char*{len:strlen(cmd)}{in} cmd,tos_tcli_onOutput out,void*{len:1}{in} userdata);
 int tos_tcli_executeByargs(int argc,const char**{len:strlen(argv)}{in} argv,tos_tcli_onOutput out,void*{len:1}{in} userdata);
