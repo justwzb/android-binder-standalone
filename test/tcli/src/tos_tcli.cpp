@@ -11,18 +11,10 @@ using namespace android;
 
 typedef void (*_tcli_func)(int a1,int a2,int a3,int a4,int a5,int a6,int a7,int a8,int a9,int a10);
 
-static int _hash(void* key) {
-    return hashmapHash(key,strlen((char*)key));
-}
-
-static bool _equals(void* keyA, void* keyB) {
-    return (0 == strcmp((char*)keyA,(char*)keyB));
-}
-
 class TCLICommand;
 
 static Mutex s_mutex(Mutex::RECURSIVE, "tcli");
-static Hashmap* s_cmdTable = hashmapCreate(16,_hash,_equals);
+static Hashmap* s_cmdTable = NULL;
 static tos_tcli_onOutput s_output = NULL;
 static void* s_userdata = NULL;
 static const TCLICommand* s_runningCmd = NULL;
@@ -108,21 +100,15 @@ public:
     }
 };
 
-#if defined(__GNUC__)
-static int _tcli_destroy(void) __attribute__((destructor));
-#else
-#error TOS_TCLI_COMMAND() for this configuration must be defined
-#endif
-
-static int _tcli_destroy(void) {
-    CLOGI("%s...\n",__FUNCTION__);
-    Mutex::Autolock _l(s_mutex);
-
-    CLOGI("%s... success\n",__FUNCTION__);
-    return SITA_SUCCESS;
+static int _hash(void* key) {
+    return hashmapHash(key,strlen((char*)key));
 }
 
-int tos_tcli_init(void) {
+static bool _equals(void* keyA, void* keyB) {
+    return (0 == strcmp((char*)keyA,(char*)keyB));
+}
+
+static int _tcli_init(void) {
     CLOGI("%s...\n",__FUNCTION__);
     Mutex::Autolock _l(s_mutex);
 
@@ -131,12 +117,13 @@ int tos_tcli_init(void) {
         return SITA_FAILED;
     }
 
+    if(s_cmdTable == NULL) {
+        s_cmdTable = hashmapCreate(16,_hash,_equals);
+        CLOG_ASSERT(s_cmdTable != NULL,"s_cmdTable create failed");
+    }
+
     CLOGI("%s...success\n",__FUNCTION__);
     return SITA_SUCCESS;
-}
-
-int tos_tcli_destroy(void) {
-    return _tcli_destroy();
 }
 
 void tos_tcli_printf(const char* fmt,...) {
@@ -179,6 +166,11 @@ int tos_tcli_addCommand(const char* name,const char *shortHelp,const char *longH
 
     Mutex::Autolock _l(s_mutex);
 
+    int err = _tcli_init();
+    if(err != SITA_SUCCESS) {
+        return err;
+    }
+
     TCLICommand* cmd = new TCLICommand(name,shortHelp,longHelp,argParse,func);
     if(cmd == NULL) {
         CLOG_ASSERT(cmd != NULL,"new TCLICommand for %s failed",name);
@@ -214,6 +206,12 @@ int tos_tcli_executeByargs(int argc,const char* argv[],tos_tcli_onOutput out,voi
     }
 
     Mutex::Autolock _l(s_mutex);
+
+    int err = _tcli_init();
+    if(err != SITA_SUCCESS) {
+        return err;
+    }
+    
     const char* cmdstr = argv[0];
 
     TCLICommand* cmd = (TCLICommand*)hashmapGet(s_cmdTable,(void*)cmdstr);
