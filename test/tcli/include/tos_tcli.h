@@ -86,21 +86,6 @@ TOS_TCLI_INTERGER(s_currentValue,"short help of s_currentValue","long help\nof s
 */
 typedef void (*tos_tcli_onOutput)(const char* prompt,void* userdata);
 
-
-/**
-@brief 初始化TCLI模块
-
-@return return 成功返回0,失败返回<0的错误代码.
-*/
-int tos_tcli_init(void);
-
-/**
-@brief 反初始化TCLI模块
-
-@return return 成功返回0,失败返回<0的错误代码.
-*/
-int tos_tcli_destroy(void);
-
 /**
 @brief 在命令执行函数中,使用此接口输出执行交互过程.
 

@@ -20,12 +20,10 @@
 #define SERVICE_NAME                            "remote_tos_tcli"
 
 #define FIRST_CALL_TRANSACTION                  (1)
-#define TRANSACTION_tos_tcli_init FIRST_CALL_TRANSACTION + 1
-#define TRANSACTION_tos_tcli_destroy FIRST_CALL_TRANSACTION + 2
-#define TRANSACTION_tos_tcli_printf FIRST_CALL_TRANSACTION + 3
-#define TRANSACTION_tos_tcli_addCommand FIRST_CALL_TRANSACTION + 4
-#define TRANSACTION_tos_tcli_execute FIRST_CALL_TRANSACTION + 5
-#define TRANSACTION_tos_tcli_executeByargs FIRST_CALL_TRANSACTION + 6
+#define TRANSACTION_tos_tcli_printf FIRST_CALL_TRANSACTION + 1
+#define TRANSACTION_tos_tcli_addCommand FIRST_CALL_TRANSACTION + 2
+#define TRANSACTION_tos_tcli_execute FIRST_CALL_TRANSACTION + 3
+#define TRANSACTION_tos_tcli_executeByargs FIRST_CALL_TRANSACTION + 4
 
 #define TRANSACTION_CALLBACK_outputcallback FIRST_CALL_TRANSACTION + 100
 #define TRANSACTION_CALLBACK_cmdcallback FIRST_CALL_TRANSACTION + 101
@@ -169,45 +167,6 @@ public:
         ALOGD(SERVICE_NAME"_service - onTransact code=%d",code);
 
         switch(code)  {
-
-            case TRANSACTION_tos_tcli_init:
-            {
-                data.enforceInterface(String16(SERVICE_NAME));  //fixed check
-
-                //-- begin code for tos_tcli_init here, will auoto generated but may change yourself if need --
-
-                //skip Exception and result first to write output paramters
-                reply->writeNoException();
-                //skip Exception and result first end
-
-                //begin paramters list
-                int _result = tos_tcli_init(  );
-
-                reply->writeInt32(_result); //int as return value
-
-                //-- end code for tos_tcli_init here --
-                return NO_ERROR;
-            } break;
-            
-            case TRANSACTION_tos_tcli_destroy:
-            {
-                data.enforceInterface(String16(SERVICE_NAME));  //fixed check
-
-                //-- begin code for tos_tcli_destroy here, will auoto generated but may change yourself if need --
-
-                //skip Exception and result first to write output paramters
-                reply->writeNoException();
-                //skip Exception and result first end
-
-                //begin paramters list
-                int _result = tos_tcli_destroy(  );
-
-                reply->writeInt32(_result); //int as return value
-
-                //-- end code for tos_tcli_destroy here --
-                return NO_ERROR;
-            } break;
-            
             case TRANSACTION_tos_tcli_printf:
             {
                 data.enforceInterface(String16(SERVICE_NAME));  //fixed check
@@ -504,64 +463,6 @@ public:
         return _instance;
     }
 
-    int tos_tcli_init(  ) {
-        Parcel data, reply;
-
-        /*-- add you code for tos_tcli_init here --*/
-        int _result = -1;
-        if(!getService()) {
-            return _result;
-        }
-
-        try {
-            data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
-
-            _binder->transact(TRANSACTION_tos_tcli_init,data, &reply,0);
-
-            if(reply.readExceptionCode() == 0) {//fix check
-
-                _result = (typeof(_result))reply.readInt32();//int as return value
-
-            } else {
-                ALOGW(SERVICE_NAME"_client tos_tcli_init error");
-            }
-        }catch(...) {
-            ALOGW(SERVICE_NAME"_client tos_tcli_init error");
-        }
-
-        return _result;
-        /*-- add you code for tos_tcli_init here --*/
-    }
-
-    int tos_tcli_destroy(  ) {
-        Parcel data, reply;
-
-        /*-- add you code for tos_tcli_destroy here --*/
-        int _result = -1;
-        if(!getService()) {
-            return _result;
-        }
-
-        try {
-            data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
-
-            _binder->transact(TRANSACTION_tos_tcli_destroy,data, &reply,0);
-
-            if(reply.readExceptionCode() == 0) {//fix check
-
-                _result = (typeof(_result))reply.readInt32();//int as return value
-
-            } else {
-                ALOGW(SERVICE_NAME"_client tos_tcli_destroy error");
-            }
-        }catch(...) {
-            ALOGW(SERVICE_NAME"_client tos_tcli_destroy error");
-        }
-
-        return _result;
-        /*-- add you code for tos_tcli_destroy here --*/
-    }
-
     void tos_tcli_printf( const char* buf ) {
         Parcel data, reply;
 
@@ -732,12 +633,6 @@ public:
 
 remote_tos_tcli_client* remote_tos_tcli_client::_instance = NULL;
 
-int tos_tcli_init(  ) {
-    return remote_tos_tcli_client::Instance()->tos_tcli_init();
-}
-int tos_tcli_destroy(  ) {
-    return remote_tos_tcli_client::Instance()->tos_tcli_destroy();
-}
 void tos_tcli_printf(const char* fmt,...) {
     char buf[TOS_TCLI_CMD_MAX_LEN];
     va_list arg;
