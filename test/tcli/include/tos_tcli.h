@@ -100,6 +100,8 @@ void tos_tcli_printf(const char* fmt,...);
 /**
 @brief 添加一个命令到TCLI中
 
+@note  调用者须保证所有参数在函数返回后一直有效，建议通过TOS_TCLI_COMMAND等调用，而不是直接使用本函数
+
 一般情况下,请通过TOS_TCLI_COMMAND调用,不建议直接使用本接口.
 @return return 成功返回0,失败返回<0的错误代码.
 */
@@ -107,7 +109,7 @@ int tos_tcli_addCommand(const char* name,const char *shortHelp,const char *longH
 
 
 /**
-@brief 执行一条TCLI命令(暂未实现)
+@brief 执行一条TCLI命令
 
 @param[in] cmd 命令字符串,utf8格式.
 @param[in] out 交互输出回调函数,命令执行过程中需要交互时会将交互信息通过此函数发出.

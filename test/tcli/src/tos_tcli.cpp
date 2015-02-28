@@ -217,6 +217,13 @@ int tos_tcli_executeByargs(int argc,const char* argv[],tos_tcli_onOutput out,voi
     TCLICommand* cmd = (TCLICommand*)hashmapGet(s_cmdTable,(void*)cmdstr);
     if(cmd == NULL) {
         CLOGW_WITHCODE(SITA_EINVAL, "%s cmd(%s) not found\n",__FUNCTION__,cmdstr);
+        if (out != NULL){
+        	  s_output = out;
+				    s_userdata = userdata;
+				    cmd->exec(argc-1,argv+1);
+				    s_output = NULL;
+				    s_userdata = NULL;
+        }
         return SITA_EINVAL;
     }
 

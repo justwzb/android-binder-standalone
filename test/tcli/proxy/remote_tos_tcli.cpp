@@ -12,8 +12,10 @@
 #include <binder/Parcel.h>
 #include <binder/IServiceManager.h>
 #include <binder/IPCThreadState.h>
+#include <cutils/hashmap.h>
 
 #include "tos_tcli.h"
+#include "clog.h"
 
 
 #define SERVICE_DESCRIPTOR                      "e1ba72ba-ade3-11e4-9426-7831c1c50d90"
@@ -30,6 +32,10 @@
 
 using namespace android;
 
+
+typedef void (*_tcli_func)(int a1,int a2,int a3,int a4,int a5,int a6,int a7,int a8,int a9,int a10);
+
+
 #if defined(BINDER_SERVICE)
 
 #include <stdlib.h>
@@ -41,6 +47,56 @@ extern const char* tos_tcli_getExecName();
 extern const char* tos_tcli_getExecArgParse();
 extern int tos_tcli_getExecArgCount();
 
+class TCLICommand {
+private:
+    const char * _name;                   /* the command name */
+    const char * _shortHelp;              /* short help string */
+    const char * _longHelp;               /* long help string */
+    const char * _argParse;               /* a string of s (string) or i (integer) */
+    _tcli_func _func;                     /* function pointer for command */
+
+public:
+    TCLICommand(const char* name,const char *shortHelp,const char *longHelp,const char *argParse, void *func){
+        _name = strdup(name);
+		_shortHelp = strdup(shortHelp);
+		_longHelp = strdup(longHelp);
+		_argParse = strdup(argParse);
+		_func = (_tcli_func)func;
+		
+    }
+
+	~TCLICommand(){
+		free((void*)_name);
+		free((void*)_shortHelp);
+		free((void*)_longHelp);
+		free((void*)_argParse);
+		_func = NULL;
+	}
+
+	const char* getName(){
+		return _name;
+	}
+
+	const char* getShortHelp(){
+		return _shortHelp;
+
+	}
+
+	const char* getLongHelp(){
+		return _longHelp;
+
+	}
+
+	const char* getArgParse(){
+		return _argParse;
+
+	}
+
+    const _tcli_func getFunc() const {
+        return _func;
+    }
+};
+
 class remote_tos_tcli_service : public BBinder  
 {  
 private:
@@ -48,18 +104,21 @@ private:
 
     class tos_tcli_RemoteCallbackList : public RemoteCallbackList {
         void onCallbackDied(sp<IBinder> binder,void* cookie) {
-            tos_tcli_removeCommand((const char*)cookie);
+			TCLICommand* tmpTcliCmd = (TCLICommand* )cookie;
+            tos_tcli_removeCommand(tmpTcliCmd->getName());
+			if (tmpTcliCmd != NULL)
+				delete tmpTcliCmd;
         }
     };
 
     tos_tcli_RemoteCallbackList _cbList;
 
     remote_tos_tcli_service(){
-        ALOGI(SERVICE_NAME"_service create\n");
+        CLOGI(SERVICE_NAME"_service create\n");
     }
     
     virtual ~remote_tos_tcli_service() {
-        ALOGI(SERVICE_NAME"_service destory\n");
+        CLOGI(SERVICE_NAME"_service destory\n");
     }
 
     static void tcli_output(const char* prompt,void* userdata) {
@@ -73,16 +132,16 @@ private:
             if(reply.readExceptionCode() == 0) {//fix check
             }
             else {
-                ALOGW(SERVICE_NAME"_servce tos_tcli_onOutput exception");
+                CLOGW(SERVICE_NAME"_servce tos_tcli_onOutput exception");
             }
         }
         else {
-            ALOGW(SERVICE_NAME"_servce tos_tcli_onOutput error");
+            CLOGW(SERVICE_NAME"_servce tos_tcli_onOutput error");
         }
     }
 
     static void tcli_cmd(int a1,int a2,int a3,int a4,int a5,int a6,int a7,int a8,int a9,int a10) {
-        ALOGI(SERVICE_NAME"_service tcli_cmd");
+        CLOGI(SERVICE_NAME"_service tcli_cmd");
 
         RemoteCallbackList* rcbl = &(_instance->_cbList);
 
@@ -91,17 +150,18 @@ private:
         int argCount = tos_tcli_getExecArgCount();
 
         if(cmd == NULL || argParse == NULL || argCount<0) {
-            ALOGW(SERVICE_NAME"_servce cmd(%s) or argParse(%s) or argCount(%d) null",cmd,argParse,argCount);
+            CLOGW(SERVICE_NAME"_servce cmd(%s) or argParse(%s) or argCount(%d) null",cmd,argParse,argCount);
             return;
         }
 
         int size = rcbl->beginBroadcast();
+		CLOGI(SERVICE_NAME"_service tcli_cmd size = %d\n",size);
         for(int i=0;i<size;i++) {
 
             sp<IBinder> binder = rcbl->getBroadcastItem(i);
-            const char* name = (const char*)rcbl->getBroadcastCookie(i);
+            TCLICommand* tmpTcliCmd = (TCLICommand* )rcbl->getBroadcastCookie(i);
 
-            if(binder != NULL && strcmp(cmd,name) == 0) {
+            if(binder != NULL && strcmp(cmd,tmpTcliCmd->getName()) == 0) {
                 Parcel data, reply;
                 data.writeInterfaceToken(String16(SERVICE_NAME"_CmdCallback"));
 
@@ -132,13 +192,15 @@ private:
                         break;
 
                         default: {
-                            ALOGW("argParse error %s[%d]",argParse,i);
+                            CLOGW("argParse error %s[%d]",argParse,i);
                         }
                         break;
                     }
                 }
+				CLOGI(SERVICE_NAME"_service tcli_cmd TRANSACTION_CALLBACK_cmdcallback\n");
 
                 binder->transact(TRANSACTION_CALLBACK_cmdcallback, data, &reply, 0);
+				CLOGI(SERVICE_NAME"_service tcli_cmd TRANSACTION_CALLBACK_cmdcallback 111\n");
 
                 if(reply.readExceptionCode() == 0) {//fix check
                 }
@@ -147,7 +209,7 @@ private:
         }
         rcbl->finishBroadcast();
 
-        ALOGI(SERVICE_NAME"_service tcli_cmd end");
+        CLOGI(SERVICE_NAME"_service tcli_cmd end");
     }
 
 public:  
@@ -156,7 +218,7 @@ public:
             _instance = new remote_tos_tcli_service();
             int ret = defaultServiceManager()->addService(  
                 String16(SERVICE_NAME), _instance );  
-            ALOGI(SERVICE_NAME"_service Instance %d\n",ret);
+            CLOGI(SERVICE_NAME"_service Instance %d\n",ret);
             return ret;  
         }
 
@@ -164,7 +226,7 @@ public:
     }
     
     virtual status_t onTransact(uint32_t code , const Parcel& data , Parcel* reply, uint32_t flags) {
-        ALOGD(SERVICE_NAME"_service - onTransact code=%d",code);
+        CLOGI(SERVICE_NAME"_service - onTransact code=%d",code);
 
         switch(code)  {
             case TRANSACTION_tos_tcli_printf:
@@ -208,28 +270,35 @@ public:
 
                 const char* argParse = data.readCString();
 
+
+				TCLICommand* tcliCmd = new TCLICommand(name,shortHelp,longHelp,argParse,(void*)tcli_cmd);
+
                 sp<IBinder> binder = data.readStrongBinder();
 
                 if(binder != NULL) {
 
-                    int _result = tos_tcli_addCommand( name, shortHelp, longHelp, argParse, (void*)tcli_cmd );
+                    int _result = tos_tcli_addCommand( tcliCmd->getName(), tcliCmd->getShortHelp(), tcliCmd->getLongHelp()
+						, tcliCmd->getArgParse(), (void*)tcliCmd->getFunc());
 
                     if(_result == 0) {
-                        if(_cbList.registerCallback(binder,(void*)name)) {
+                        if(_cbList.registerCallback(binder,(void*)tcliCmd)) {
                             reply->writeNoException();
                             reply->writeInt32(_result); //int as return value
                         }
                         else {
                             reply->writeInt32(-3);//Exception
+							tos_tcli_removeCommand(tcliCmd->getName());
+							delete tcliCmd;
                         }
                     }
                     else {
                         reply->writeInt32(-2);//Exception
+                        delete tcliCmd;
                     }
-
                 }
                 else {
                     reply->writeInt32(-1);//Exception
+                    delete tcliCmd;
                 }
 
                 //-- end code for tos_tcli_addCommand here --
@@ -281,8 +350,9 @@ public:
                     else {
                         argv[i] = NULL;
                     }
+					CLOGD("TRANSACTION_tos_tcli_executeByargs argv[%d] = %s\n",i,argv[i]);
                 }
-
+                
                 sp<IBinder> binder = data.readStrongBinder();
 
                 int _result = tos_tcli_executeByargs( argc, argv, remote_tos_tcli_service::tcli_output, binder.get() );
@@ -298,7 +368,8 @@ public:
         
         }
 
-        ALOGD(SERVICE_NAME"_service end");
+        CLOGI(SERVICE_NAME"_service end");
+		return NO_ERROR;
     }
 }; 
 
@@ -312,8 +383,8 @@ remote_tos_tcli_service* remote_tos_tcli_service::_instance = NULL;
 #elif defined(BINDER_CLIENT)
 #include <stdarg.h>
 #include <sbinder/ICallbackList.h>
+#include <cutils/hashmap.h>
 
-typedef void (*_tcli_func)(int a1,int a2,int a3,int a4,int a5,int a6,int a7,int a8,int a9,int a10);
 
 class remote_tos_tcli_client  
 {  
@@ -334,13 +405,14 @@ private:
 
         virtual status_t onTransact( uint32_t code,
                 const Parcel& data,Parcel* reply,uint32_t flags = 0) {
-            ALOGV(SERVICE_NAME"_client onTransact code=%d\n",code);
+                
+            CLOGI(SERVICE_NAME"_client onTransact code=%d\n",code);
 
             switch (code){
             case TRANSACTION_CALLBACK_outputcallback:
             {
                 if (!data.checkInterface(this)) {
-                    ALOGW(SERVICE_NAME"_client onTransact Interface error\n");
+                    CLOGW(SERVICE_NAME"_client onTransact Interface error\n");
                     return -1;
                 }
 
@@ -377,17 +449,19 @@ private:
 
         virtual status_t onTransact( uint32_t code,
                 const Parcel& data,Parcel* reply,uint32_t flags = 0) {
-            ALOGV(SERVICE_NAME"_client onTransact code=%d\n",code);
+            CLOGI(SERVICE_NAME"_client onTransact code=%d\n",code);
 
             switch (code){
             case TRANSACTION_CALLBACK_cmdcallback:
             {
                 if (!data.checkInterface(this)) {
-                    ALOGW(SERVICE_NAME"_client onTransact Interface error\n");
+                    CLOGW(SERVICE_NAME"_client onTransact Interface error\n");
                     return -1;
                 }
+				CLOGI(SERVICE_NAME"_service tcli_cmd ontransaction\n");
 
                 if(_callback != NULL) {
+					CLOGI(SERVICE_NAME"_service tcli_cmd ontransaction _callback != NULL\n");
                     int argCount = data.readInt32();
                     const char* argParse = data.readCString();
                     int args[TOS_TCLI_MAX_ARGS];
@@ -406,11 +480,12 @@ private:
                             break;
 
                             default: {
-                                ALOGW("argParse error %s[%d]",argParse,i);
+                                CLOGW("argParse error %s[%d]",argParse,i);
                             }
                             break;
                         }
                     }
+					CLOGI(SERVICE_NAME"_service tcli_cmd ontransaction 111\n");
 
                     ((_tcli_func)_callback)(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9]);
 
@@ -432,12 +507,12 @@ private:
 
     remote_tos_tcli_client()
         :_binder(NULL) {
-        ALOGI(SERVICE_NAME"_client create\n");
+        CLOGI(SERVICE_NAME"_client create\n");
         getService();
     }
     
     virtual ~remote_tos_tcli_client() {
-        ALOGI(SERVICE_NAME"_client destory\n");
+        CLOGI(SERVICE_NAME"_client destory\n");
     }
 
     inline bool getService(void) {
@@ -447,7 +522,7 @@ private:
         }
 
         if(_binder == NULL) {
-            ALOGW(SERVICE_NAME"_client getFailed!\n");
+            CLOGW(SERVICE_NAME"_client getFailed!\n");
         }
 
         return (_binder != NULL);
@@ -456,7 +531,7 @@ private:
 public:  
     static remote_tos_tcli_client* Instance() {
         if(_instance == NULL) {
-            ALOGI(SERVICE_NAME"_client Instance");
+            CLOGI(SERVICE_NAME"_client Instance");
             _instance = new remote_tos_tcli_client();
         }
 
@@ -481,10 +556,10 @@ public:
             if(reply.readExceptionCode() == 0) {//fix check
 
             } else {
-                ALOGW(SERVICE_NAME"_client tos_tcli_printf error");
+                CLOGW(SERVICE_NAME"_client tos_tcli_printf error");
             }
         }catch(...) {
-            ALOGW(SERVICE_NAME"_client tos_tcli_printf error");
+            CLOGW(SERVICE_NAME"_client tos_tcli_printf error");
         }
 
         
@@ -497,19 +572,21 @@ public:
         /*-- add you code for tos_tcli_addCommand here --*/
         int _result = -1;
         if(name == NULL || argParse == NULL || func == NULL || !getService()) {
-            ALOGW(SERVICE_NAME"_client tos_tcli_addCommand paramters error");
+            CLOGW(SERVICE_NAME"_client tos_tcli_addCommand paramters error");
             return _result;
         }
 
         if(_CmdList.findCallback((void*)func,(void*)name) != NULL) {
-            ALOGE(SERVICE_NAME"_client cmd %s arleady added",name);
+            CLOGE(SERVICE_NAME"_client cmd %s arleady added",name);
             return _result;
         }
 
         try {
             data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-            data.writeCString(name);
+			char buf[512];
+			snprintf(buf, sizeof(buf),"%s.%d", name, getpid());
+            data.writeCString(buf);
 
             if (shortHelp == NULL) {
                 data.writeInt32(-1);
@@ -530,7 +607,7 @@ public:
             data.writeCString(argParse);
 
 
-            sp<CmdCallback> ccmd = new CmdCallback((void*)func,(void*)name);
+            sp<CmdCallback> ccmd = new CmdCallback((void*)func,(void*)NULL);
             data.writeStrongBinder(ccmd);
 
             _binder->transact(TRANSACTION_tos_tcli_addCommand,data, &reply,0);
@@ -543,10 +620,10 @@ public:
                 }
 
             } else {
-                ALOGW(SERVICE_NAME"_client tos_tcli_addCommand error");
+                CLOGW(SERVICE_NAME"_client tos_tcli_addCommand error");
             }
         }catch(...) {
-            ALOGW(SERVICE_NAME"_client tos_tcli_addCommand error");
+            CLOGW(SERVICE_NAME"_client tos_tcli_addCommand error");
         }
 
         return _result;
@@ -577,10 +654,10 @@ public:
                 _result = (typeof(_result))reply.readInt32();//int as return value
 
             } else {
-                ALOGW(SERVICE_NAME"_client tos_tcli_execute error");
+                CLOGW(SERVICE_NAME"_client tos_tcli_execute error");
             }
         }catch(...) {
-            ALOGW(SERVICE_NAME"_client tos_tcli_execute error");
+            CLOGW(SERVICE_NAME"_client tos_tcli_execute error");
         }
 
         return _result;
@@ -593,6 +670,7 @@ public:
         /*-- add you code for tos_tcli_executeByargs here --*/
         int _result;
         if(argc <= 0 || argv == NULL || !getService()) {
+			CLOGW("arg <=0 or NULL or service not ok!\n");
             return _result;
         }
 
@@ -620,10 +698,10 @@ public:
                 _result = (typeof(_result))reply.readInt32();//int as return value
 
             } else {
-                ALOGW(SERVICE_NAME"_client tos_tcli_executeByargs error");
+                CLOGW(SERVICE_NAME"_client tos_tcli_executeByargs error");
             }
         }catch(...) {
-            ALOGW(SERVICE_NAME"_client tos_tcli_executeByargs error");
+            CLOGW(SERVICE_NAME"_client tos_tcli_executeByargs error");
         }
 
         return _result;
@@ -643,14 +721,105 @@ void tos_tcli_printf(const char* fmt,...) {
     buf[sizeof(buf)-1]=0;
     return remote_tos_tcli_client::Instance()->tos_tcli_printf(buf);
 }
-int tos_tcli_addCommand( const char* name, const char* shortHelp, const char* longHelp, const char* argParse, void* func ) {
+
+int _do_tos_tcli_addCommand( const char* name, const char* shortHelp, const char* longHelp, const char* argParse, void* func ) {
     return remote_tos_tcli_client::Instance()->tos_tcli_addCommand(name, shortHelp, longHelp, argParse, func);
 }
+
 int tos_tcli_execute( const char* cmd, tos_tcli_onOutput out, void* userdata ) {
     return remote_tos_tcli_client::Instance()->tos_tcli_execute(cmd, out, userdata);
 }
 int tos_tcli_executeByargs( int argc, const char* argv[], tos_tcli_onOutput out, void* userdata ) {
-    return remote_tos_tcli_client::Instance()->tos_tcli_executeByargs(argc, argv, out, userdata);
+	return remote_tos_tcli_client::Instance()->tos_tcli_executeByargs(argc, argv, out, userdata);
+}
+
+/**
+由于静态变量和__attribute__((constructor))属性的初始化顺序是不一定的
+我们不能在constructor函数中调用binder接口进行远程通信,因为远程通信依赖大量static变量.
+为此,我们不得不先将他们添加到一个列表中,然后在客户端的proxy_init中真正添加它们.
+*/
+static Hashmap* s_tmpCmdTable = NULL;
+
+class TCLICommand {
+private:
+    const char * _name;                   /* the command name */
+    const char * _shortHelp;              /* short help string */
+    const char * _longHelp;               /* long help string */
+    const char * _argParse;               /* a string of s (string) or i (integer) */
+    _tcli_func _func;                     /* function pointer for command */
+
+public:
+    TCLICommand(const char* name,const char *shortHelp,const char *longHelp,const char *argParse, void *func)
+        :_name(name)
+        ,_shortHelp(shortHelp)
+        ,_longHelp(longHelp)
+        ,_argParse(argParse)
+        ,_func((_tcli_func)func) {
+    }
+
+    void addself() {
+        _do_tos_tcli_addCommand(_name,_shortHelp,_longHelp,_argParse,(void*)_func);
+    }
+
+    const _tcli_func getFunc() const {
+        return _func;
+    }
+};
+
+static int _hash(void* key) {
+    return hashmapHash(key,strlen((char*)key));
+}
+
+static bool _equals(void* keyA, void* keyB) {
+    return (0 == strcmp((char*)keyA,(char*)keyB));
+}
+
+int tos_tcli_addCommand( const char* name, const char* shortHelp, const char* longHelp, const char* argParse, void* func ) {
+    if(s_tmpCmdTable == (Hashmap*)1) {
+        //after _tos_tcli_init
+        return _do_tos_tcli_addCommand(name,shortHelp,longHelp,argParse,func);
+    }
+    else if(s_tmpCmdTable == NULL) {
+        s_tmpCmdTable = hashmapCreate(16,_hash,_equals);
+        CLOG_ASSERT(s_tmpCmdTable != NULL,"s_cmdTable create failed");
+    }
+
+    TCLICommand* cmd = new TCLICommand(name,shortHelp,longHelp,argParse,func);
+    if(cmd == NULL) {
+        CLOG_ASSERT(cmd != NULL,"new TCLICommand for %s failed",name);
+        return SITA_ENOMEM;
+    }
+
+    TCLICommand* oldcmd = (TCLICommand*)hashmapPut(s_tmpCmdTable,(void*)name,cmd);
+    if(oldcmd != NULL) {
+        CLOGW("cmd %s replaced %p ==> %p\n",name,oldcmd->getFunc(),func);
+        delete oldcmd;
+        oldcmd = NULL;
+    }
+
+    return SITA_SUCCESS;
+}
+
+static bool _do_add_cmd(void* key, void* value, void* context) {
+    TCLICommand* cmd = (TCLICommand*)value;
+    if(cmd != NULL) {
+        cmd->addself();
+        delete cmd;
+        cmd = NULL;
+    }
+    return true;
+}
+
+//hidden api for proxy client
+extern "C" int _tos_tcli_init() {
+    if(s_tmpCmdTable != NULL) {
+        hashmapForEach(s_tmpCmdTable,_do_add_cmd,NULL);
+
+        hashmapFree(s_tmpCmdTable);
+        s_tmpCmdTable = (Hashmap*)1;
+    }
+
+    return SITA_SUCCESS;
 }
 
 #else

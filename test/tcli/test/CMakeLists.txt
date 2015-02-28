@@ -7,7 +7,7 @@ set(TCLI_SIGNAL_TEST_SRC
 ADD_EXECUTABLE(tcli_signal ${TCLI_SIGNAL_TEST_SRC})
 ADD_DEPENDENCIES(tcli_signal tcli)
 ADD_DEPENDENCIES(tcli_signal AndroidToolsets)
-TARGET_LINK_LIBRARIES(tcli_signal tcli AndroidToolsets)
+TARGET_LINK_LIBRARIES(tcli_signal tcli AndroidToolsets ${CMAKE_TEST_LINKLIBS})
 
 #------------------------------
 FIND_PACKAGE(StandaloneBinder REQUIRED)
