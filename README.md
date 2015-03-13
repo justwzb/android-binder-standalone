@@ -48,20 +48,19 @@ make defconfig ARCH=arm64
 make  ARCH=arm64 CROSS_COMPILE=arm-none-linux-gnueabi-
 ```
 
+Note: this environment doesn`t include 32-bit libs, so please use static link.
+Further more, the shell will not give an error like exec file not found instand of so not found.
+
 
 
 ### Code From:
 
 The source code of binder are copied from AOSP
 
-binder & servicemanager
-https://android.googlesource.com/platform/frameworks/native/+/android-4.4.4_r2.0.1
-
-include/kernel 
-https://android.googlesource.com/platform/bionic/+/android-4.4.4_r2.0.1
+https://android.googlesource.com/ android-5.1.0_r1
 
 kernel module
-https://android.googlesource.com/kernel/common/+log/android-3.10 42df511
+https://android.googlesource.com/kernel/common/+/android-3.10 e48e8c45
 
 
 
