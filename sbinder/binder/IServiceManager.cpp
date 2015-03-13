@@ -18,7 +18,6 @@
 
 #include <binder/IServiceManager.h>
 
-#include <utils/Debug.h>
 #include <utils/Log.h>
 #include <binder/IPCThreadState.h>
 #include <binder/Parcel.h>
@@ -48,7 +47,7 @@ sp<IServiceManager> defaultServiceManager()
     return gDefaultServiceManager;
 }
 
-#if 0
+#if 0	//lihui, do not use permission
 bool checkCallingPermission(const String16& permission)
 {
     return checkCallingPermission(permission, NULL, NULL);

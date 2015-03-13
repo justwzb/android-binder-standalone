@@ -17,6 +17,8 @@
 #ifndef ANDROID_BINDER_H
 #define ANDROID_BINDER_H
 
+//#include <stdatomic.h>	//lihui: use android atomic to avoid C++11 requires
+//#include <stdint.h>
 #include <binder/IBinder.h>
 
 // ---------------------------------------------------------------------------

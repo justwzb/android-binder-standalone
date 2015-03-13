@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#undef HAVE_ANDROID_OS  //lihui: this module can not work on android mode
-
 #define LOG_TAG "MemoryHeapBase"
 
 #include <stdlib.h>
@@ -32,11 +30,6 @@
 #include <cutils/atomic.h>
 
 #include <binder/MemoryHeapBase.h>
-
-#ifdef HAVE_ANDROID_OS
-#include <linux/android_pmem.h>
-#endif
-
 
 namespace android {
 
@@ -110,18 +103,9 @@ status_t MemoryHeapBase::mapfd(int fd, size_t size, uint32_t offset)
 {
     if (size == 0) {
         // try to figure out the size automatically
-#ifdef HAVE_ANDROID_OS
-        // first try the PMEM ioctl
-        pmem_region reg;
-        int err = ioctl(fd, PMEM_GET_TOTAL_SIZE, &reg);
-        if (err == 0)
-            size = reg.len;
-#endif
-        if (size == 0) { // try fstat
-            struct stat sb;
-            if (fstat(fd, &sb) == 0)
-                size = sb.st_size;
-        }
+        struct stat sb;
+        if (fstat(fd, &sb) == 0)
+            size = sb.st_size;
         // if it didn't work, let mmap() fail.
     }
 

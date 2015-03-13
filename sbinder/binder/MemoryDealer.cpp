@@ -210,7 +210,7 @@ Allocation::~Allocation()
 #ifdef MADV_REMOVE
             if (size) {
                 int err = madvise(start_ptr, size, MADV_REMOVE);
-                ALOGW_IF(err, "madvise(%p, %u, MADV_REMOVE) returned %s",
+                ALOGW_IF(err, "madvise(%p, %zu, MADV_REMOVE) returned %s",
                         start_ptr, size, err<0 ? strerror(errno) : "Ok");
             }
 #endif
@@ -225,8 +225,8 @@ Allocation::~Allocation()
 
 // ----------------------------------------------------------------------------
 
-MemoryDealer::MemoryDealer(size_t size, const char* name)
-    : mHeap(new MemoryHeapBase(size, 0, name)),
+MemoryDealer::MemoryDealer(size_t size, const char* name, uint32_t flags)
+    : mHeap(new MemoryHeapBase(size, flags, name)),
     mAllocator(new SimpleBestFitAllocator(size))
 {    
 }
@@ -372,7 +372,7 @@ SimpleBestFitAllocator::chunk_t* SimpleBestFitAllocator::dealloc(size_t start)
         if (cur->start == start) {
             LOG_FATAL_IF(cur->free,
                 "block at offset 0x%08lX of size 0x%08lX already freed",
-                (long)cur->start*kMemoryAlign, (long)cur->size*kMemoryAlign);
+                cur->start*kMemoryAlign, cur->size*kMemoryAlign);
 
             // merge freed blocks together
             chunk_t* freed = cur;
@@ -396,7 +396,7 @@ SimpleBestFitAllocator::chunk_t* SimpleBestFitAllocator::dealloc(size_t start)
             #endif
             LOG_FATAL_IF(!freed->free,
                 "freed block at offset 0x%08lX of size 0x%08lX is not free!",
-                (long)freed->start * kMemoryAlign, (long)freed->size * kMemoryAlign);
+                freed->start * kMemoryAlign, freed->size * kMemoryAlign);
 
             return freed;
         }
@@ -445,8 +445,8 @@ void SimpleBestFitAllocator::dump_l(String8& result,
         int np = ((cur->next) && cur->next->prev != cur) ? 1 : 0;
         int pn = ((cur->prev) && cur->prev->next != cur) ? 2 : 0;
 
-        snprintf(buffer, SIZE, "  %3u: %08x | 0x%08X | 0x%08X | %s %s\n",
-            i, int(cur), int(cur->start*kMemoryAlign),
+        snprintf(buffer, SIZE, "  %3u: %p | 0x%08X | 0x%08X | %s %s\n",
+            i, cur, int(cur->start*kMemoryAlign),
             int(cur->size*kMemoryAlign),
                     int(cur->free) ? "F" : "A",
                     errs[np|pn]);
