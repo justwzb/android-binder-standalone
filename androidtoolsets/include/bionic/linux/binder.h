@@ -15,6 +15,20 @@
  ***   be run. You've been warned!
  ***
  ****************************************************************************
+    
+ lihui note:
+ _IOR ==> _IOR_BAD
+ _IOW ==> _IOW_BAD
+ _IOWR ==> _IOWR_BAD
+
+ or you may get below error on some old android kernel
+
+ error: '__invalid_size_argument_for_IOC' cannot appear in a constant-expression
+
+ see below links for more details about this issue.
+ http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5f8c3c8edff426fd87098f057688463107fcd9ce 
+ 
+ But this makes userspace and kernel module defines different, be CAREFULL!!
  ****************************************************************************/
 #ifndef _UAPI_LINUX_BINDER_H
 #define _UAPI_LINUX_BINDER_H
@@ -77,14 +91,14 @@ struct binder_version {
 #define BINDER_CURRENT_PROTOCOL_VERSION 8
 #endif
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
-#define BINDER_WRITE_READ _IOWR('b', 1, struct binder_write_read)
-#define BINDER_SET_IDLE_TIMEOUT _IOW('b', 3, __s64)
-#define BINDER_SET_MAX_THREADS _IOW('b', 5, __u32)
-#define BINDER_SET_IDLE_PRIORITY _IOW('b', 6, __s32)
+#define BINDER_WRITE_READ _IOWR_BAD('b', 1, struct binder_write_read)
+#define BINDER_SET_IDLE_TIMEOUT _IOW_BAD('b', 3, __s64)
+#define BINDER_SET_MAX_THREADS _IOW_BAD('b', 5, __u32)
+#define BINDER_SET_IDLE_PRIORITY _IOW_BAD('b', 6, __s32)
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
-#define BINDER_SET_CONTEXT_MGR _IOW('b', 7, __s32)
-#define BINDER_THREAD_EXIT _IOW('b', 8, __s32)
-#define BINDER_VERSION _IOWR('b', 9, struct binder_version)
+#define BINDER_SET_CONTEXT_MGR _IOW_BAD('b', 7, __s32)
+#define BINDER_THREAD_EXIT _IOW_BAD('b', 8, __s32)
+#define BINDER_VERSION _IOWR_BAD('b', 9, struct binder_version)
 enum transaction_flags {
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
  TF_ONE_WAY = 0x01,
@@ -140,52 +154,52 @@ struct binder_pri_ptr_cookie {
  binder_uintptr_t cookie;
 };
 enum binder_driver_return_protocol {
- BR_ERROR = _IOR('r', 0, __s32),
+ BR_ERROR = _IOR_BAD('r', 0, __s32),
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
  BR_OK = _IO('r', 1),
- BR_TRANSACTION = _IOR('r', 2, struct binder_transaction_data),
- BR_REPLY = _IOR('r', 3, struct binder_transaction_data),
- BR_ACQUIRE_RESULT = _IOR('r', 4, __s32),
+ BR_TRANSACTION = _IOR_BAD('r', 2, struct binder_transaction_data),
+ BR_REPLY = _IOR_BAD('r', 3, struct binder_transaction_data),
+ BR_ACQUIRE_RESULT = _IOR_BAD('r', 4, __s32),
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
  BR_DEAD_REPLY = _IO('r', 5),
  BR_TRANSACTION_COMPLETE = _IO('r', 6),
- BR_INCREFS = _IOR('r', 7, struct binder_ptr_cookie),
- BR_ACQUIRE = _IOR('r', 8, struct binder_ptr_cookie),
+ BR_INCREFS = _IOR_BAD('r', 7, struct binder_ptr_cookie),
+ BR_ACQUIRE = _IOR_BAD('r', 8, struct binder_ptr_cookie),
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
- BR_RELEASE = _IOR('r', 9, struct binder_ptr_cookie),
- BR_DECREFS = _IOR('r', 10, struct binder_ptr_cookie),
- BR_ATTEMPT_ACQUIRE = _IOR('r', 11, struct binder_pri_ptr_cookie),
+ BR_RELEASE = _IOR_BAD('r', 9, struct binder_ptr_cookie),
+ BR_DECREFS = _IOR_BAD('r', 10, struct binder_ptr_cookie),
+ BR_ATTEMPT_ACQUIRE = _IOR_BAD('r', 11, struct binder_pri_ptr_cookie),
  BR_NOOP = _IO('r', 12),
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
  BR_SPAWN_LOOPER = _IO('r', 13),
  BR_FINISHED = _IO('r', 14),
- BR_DEAD_BINDER = _IOR('r', 15, binder_uintptr_t),
- BR_CLEAR_DEATH_NOTIFICATION_DONE = _IOR('r', 16, binder_uintptr_t),
+ BR_DEAD_BINDER = _IOR_BAD('r', 15, binder_uintptr_t),
+ BR_CLEAR_DEATH_NOTIFICATION_DONE = _IOR_BAD('r', 16, binder_uintptr_t),
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
  BR_FAILED_REPLY = _IO('r', 17),
 };
 enum binder_driver_command_protocol {
- BC_TRANSACTION = _IOW('c', 0, struct binder_transaction_data),
+ BC_TRANSACTION = _IOW_BAD('c', 0, struct binder_transaction_data),
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
- BC_REPLY = _IOW('c', 1, struct binder_transaction_data),
- BC_ACQUIRE_RESULT = _IOW('c', 2, __s32),
- BC_FREE_BUFFER = _IOW('c', 3, binder_uintptr_t),
- BC_INCREFS = _IOW('c', 4, __u32),
+ BC_REPLY = _IOW_BAD('c', 1, struct binder_transaction_data),
+ BC_ACQUIRE_RESULT = _IOW_BAD('c', 2, __s32),
+ BC_FREE_BUFFER = _IOW_BAD('c', 3, binder_uintptr_t),
+ BC_INCREFS = _IOW_BAD('c', 4, __u32),
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
- BC_ACQUIRE = _IOW('c', 5, __u32),
- BC_RELEASE = _IOW('c', 6, __u32),
- BC_DECREFS = _IOW('c', 7, __u32),
- BC_INCREFS_DONE = _IOW('c', 8, struct binder_ptr_cookie),
+ BC_ACQUIRE = _IOW_BAD('c', 5, __u32),
+ BC_RELEASE = _IOW_BAD('c', 6, __u32),
+ BC_DECREFS = _IOW_BAD('c', 7, __u32),
+ BC_INCREFS_DONE = _IOW_BAD('c', 8, struct binder_ptr_cookie),
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
- BC_ACQUIRE_DONE = _IOW('c', 9, struct binder_ptr_cookie),
- BC_ATTEMPT_ACQUIRE = _IOW('c', 10, struct binder_pri_desc),
+ BC_ACQUIRE_DONE = _IOW_BAD('c', 9, struct binder_ptr_cookie),
+ BC_ATTEMPT_ACQUIRE = _IOW_BAD('c', 10, struct binder_pri_desc),
  BC_REGISTER_LOOPER = _IO('c', 11),
  BC_ENTER_LOOPER = _IO('c', 12),
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
  BC_EXIT_LOOPER = _IO('c', 13),
- BC_REQUEST_DEATH_NOTIFICATION = _IOW('c', 14, struct binder_handle_cookie),
- BC_CLEAR_DEATH_NOTIFICATION = _IOW('c', 15, struct binder_handle_cookie),
- BC_DEAD_BINDER_DONE = _IOW('c', 16, binder_uintptr_t),
+ BC_REQUEST_DEATH_NOTIFICATION = _IOW_BAD('c', 14, struct binder_handle_cookie),
+ BC_CLEAR_DEATH_NOTIFICATION = _IOW_BAD('c', 15, struct binder_handle_cookie),
+ BC_DEAD_BINDER_DONE = _IOW_BAD('c', 16, binder_uintptr_t),
 /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
 };
 #endif
