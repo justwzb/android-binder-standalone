@@ -1,5 +1,6 @@
 set(AndroidToolsets_INCLUDE_DIR 
-    ${PROJECT_SOURCE_DIR}/androidtoolsets/include/ #head files of libs
+    ${PROJECT_SOURCE_DIR}/androidtoolsets/include/
+    ${PROJECT_SOURCE_DIR}/androidtoolsets/include/bionic/
 )
 
 IF (AndroidToolsets_INCLUDE_DIR)

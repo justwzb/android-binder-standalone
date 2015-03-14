@@ -104,7 +104,7 @@ public:
                 unsigned int bufsize = (unsigned int)data.readInt32();  //unsigned int as input paramter
 
                 serverData* sd = new serverData();
-                reply->writeIntPtr((intptr_t)sd);
+                reply->writePointer((intptr_t)sd);
                 if(sd != NULL) {
                     reply->writeRBBlob(bufsize,&(sd->blob));
                 
@@ -113,7 +113,7 @@ public:
                     if(sd->realHandle == NULL) {
                         reply->setDataPosition(0);
                         reply->writeNoException();
-                        reply->writeIntPtr((intptr_t)NULL);
+                        reply->writePointer((intptr_t)NULL);
                         delete sd;
                     }
                 }
@@ -128,7 +128,7 @@ public:
                 //-- begin code for matrix_ringbuf_aquireIn here, will auoto generated but may change yourself if need --
 
                 //begin paramters list
-                serverData* sd = (serverData*)data.readIntPtr();
+                serverData* sd = (serverData*)data.readPointer();
 				if(sd != NULL && sd->check()) {
 	            	matrix_ringbuf_handle handle = sd->realHandle;
 
@@ -162,7 +162,7 @@ public:
                 //-- begin code for matrix_ringbuf_aquireOut here, will auoto generated but may change yourself if need --
 
                 //begin paramters list
-                serverData* sd = (serverData*)data.readIntPtr();
+                serverData* sd = (serverData*)data.readPointer();
 				if(sd != NULL && sd->check()) {
 	            	matrix_ringbuf_handle handle = sd->realHandle;
 
@@ -194,7 +194,7 @@ public:
                 //-- begin code for matrix_ringbuf_confirmAquireIn here, will auoto generated but may change yourself if need --
 
                 //begin paramters list
-                serverData* sd = (serverData*)data.readIntPtr();
+                serverData* sd = (serverData*)data.readPointer();
 				if(sd != NULL && sd->check()) {
 					reply->writeNoException();
 	            	matrix_ringbuf_handle handle = sd->realHandle;	
@@ -216,7 +216,7 @@ public:
                 //-- begin code for matrix_ringbuf_confirmAquireOut here, will auoto generated but may change yourself if need --
 
                 //begin paramters list
-                serverData* sd = (serverData*)data.readIntPtr();
+                serverData* sd = (serverData*)data.readPointer();
 				if(sd != NULL && sd->check()) {
 					reply->writeNoException();
 	            	matrix_ringbuf_handle handle = sd->realHandle;		
@@ -238,7 +238,7 @@ public:
                 //-- begin code for matrix_ringbuf_skip here, will auoto generated but may change yourself if need --
 
 				//begin paramters list
-			   serverData* sd = (serverData*)data.readIntPtr();
+			   serverData* sd = (serverData*)data.readPointer();
 			   if(sd != NULL && sd->check()) {
 				   reply->writeNoException();
 				   matrix_ringbuf_handle handle = sd->realHandle;			   
@@ -260,7 +260,7 @@ public:
                 //-- begin code for matrix_ringbuf_getDataSize here, will auoto generated but may change yourself if need --
 
 				 //begin paramters list
-				serverData* sd = (serverData*)data.readIntPtr();
+				serverData* sd = (serverData*)data.readPointer();
 				if(sd != NULL && sd->check()) {
 					reply->writeNoException();
 					matrix_ringbuf_handle handle = sd->realHandle;				
@@ -282,7 +282,7 @@ public:
                 //-- begin code for matrix_ringbuf_getFreeSize here, will auoto generated but may change yourself if need --
 
 				 //begin paramters list
-				serverData* sd = (serverData*)data.readIntPtr();
+				serverData* sd = (serverData*)data.readPointer();
 				if(sd != NULL && sd->check()) {
 					reply->writeNoException();
 					matrix_ringbuf_handle handle = sd->realHandle;				
@@ -304,7 +304,7 @@ public:
                 //-- begin code for matrix_ringbuf_rewind here, will auoto generated but may change yourself if need --
 
 				 //begin paramters list
-				serverData* sd = (serverData*)data.readIntPtr();
+				serverData* sd = (serverData*)data.readPointer();
 				if(sd != NULL && sd->check()) {
 					reply->writeNoException();
 					matrix_ringbuf_handle handle = sd->realHandle;
@@ -327,7 +327,7 @@ public:
                 //-- begin code for matrix_ringbuf_reset here, will auoto generated but may change yourself if need --
 
 				 //begin paramters list
-				serverData* sd = (serverData*)data.readIntPtr();
+				serverData* sd = (serverData*)data.readPointer();
 				if(sd != NULL && sd->check()) {
 					reply->writeNoException();
 					matrix_ringbuf_handle handle = sd->realHandle;
@@ -349,7 +349,7 @@ public:
                 //-- begin code for matrix_ringbuf_exit here, will auoto generated but may change yourself if need --
 
 				 //begin paramters list
-				serverData* sd = (serverData*)data.readIntPtr();
+				serverData* sd = (serverData*)data.readPointer();
 				if(sd != NULL && sd->check()) {
 					reply->writeNoException();
 					matrix_ringbuf_handle handle = sd->realHandle;
@@ -438,7 +438,7 @@ public:
             _binder->transact(TRANSACTION_matrix_ringbuf_init,data, &reply,0);
 
             if(reply.readExceptionCode() == 0) {//fix check
-                intptr_t remoteHandle = reply.readIntPtr();
+                intptr_t remoteHandle = reply.readPointer();
                 if(remoteHandle != (intptr_t)NULL) {
                     clientData* cd = new clientData();
                     
@@ -494,7 +494,7 @@ public:
 			if(cd != NULL && cd->check() && buf != NULL) {
             	data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-            	data.writeIntPtr(cd->remoteHandle); 
+            	data.writePointer(cd->remoteHandle); 
 
             	_binder->transact(TRANSACTION_matrix_ringbuf_aquireIn,data, &reply,0);
 
@@ -532,7 +532,7 @@ public:
 			if(cd != NULL && cd->check() && buf != NULL) {
             	data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-	            data.writeIntPtr(cd->remoteHandle);
+	            data.writePointer(cd->remoteHandle);
 
 	            _binder->transact(TRANSACTION_matrix_ringbuf_aquireOut,data, &reply,0);
 
@@ -569,7 +569,7 @@ public:
 			if(cd != NULL && cd->check()) {
             	data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-	            data.writeIntPtr(cd->remoteHandle);
+	            data.writePointer(cd->remoteHandle);
 				
 				data.writeInt32(size);
 
@@ -600,7 +600,7 @@ public:
 			if(cd != NULL && cd->check()) {
             	data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-	            data.writeIntPtr(cd->remoteHandle);
+	            data.writePointer(cd->remoteHandle);
 				
 				data.writeInt32(size);
 
@@ -631,7 +631,7 @@ public:
             if(cd != NULL && cd->check()) {
                 data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-                data.writeIntPtr(cd->remoteHandle);
+                data.writePointer(cd->remoteHandle);
                 
                 data.writeInt32(size);
 
@@ -662,7 +662,7 @@ public:
             if(cd != NULL && cd->check()) {
                 data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-                data.writeIntPtr(cd->remoteHandle);
+                data.writePointer(cd->remoteHandle);
 
                 _binder->transact(TRANSACTION_matrix_ringbuf_getDataSize,data, &reply,0);
 
@@ -691,7 +691,7 @@ public:
             if(cd != NULL && cd->check()) {
                 data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-                data.writeIntPtr(cd->remoteHandle);
+                data.writePointer(cd->remoteHandle);
 
                 _binder->transact(TRANSACTION_matrix_ringbuf_getFreeSize,data, &reply,0);
 
@@ -720,7 +720,7 @@ public:
             if(cd != NULL && cd->check()) {
                 data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-                data.writeIntPtr(cd->remoteHandle);
+                data.writePointer(cd->remoteHandle);
                 
                 data.writeInt32(size);
 
@@ -751,7 +751,7 @@ public:
             if(cd != NULL && cd->check()) {
                 data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-                data.writeIntPtr(cd->remoteHandle);
+                data.writePointer(cd->remoteHandle);
 
                 _binder->transact(TRANSACTION_matrix_ringbuf_reset,data, &reply,0);
 
@@ -780,7 +780,7 @@ public:
             if(cd != NULL && cd->check()) {
                 data.writeInterfaceToken(String16(SERVICE_NAME));//fixed check
 
-                data.writeIntPtr(cd->remoteHandle);
+                data.writePointer(cd->remoteHandle);
 
                 _binder->transact(TRANSACTION_matrix_ringbuf_exit,data, &reply,0);
 

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <string.h>
 
 //lihui, remove perms check
 #if 0   
@@ -188,6 +189,8 @@ uint32_t do_find_service(struct binder_state *bs, const uint16_t *s, size_t len,
     si = find_svc(s, len);
     //ALOGI("check_service('%s') handle = %x\n", str8(s, len), si ? si->handle : 0);
     if (si && si->handle) {
+
+        #if 0   //lihui, removed android allow_isolated check, TODO: add some kinds of simliar check
         if (!si->allow_isolated) {
             // If this service doesn't allow access from isolated processes,
             // then check the uid to see if it is isolated.
@@ -196,6 +199,7 @@ uint32_t do_find_service(struct binder_state *bs, const uint16_t *s, size_t len,
                 return 0;
             }
         }
+        #endif
         return si->handle;
     } else {
         return 0;

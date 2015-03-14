@@ -232,6 +232,9 @@ private:
     
 public:
     void                print(TextOutput& to, uint32_t flags = 0) const;
+    status_t            writePointer(uintptr_t val);
+    status_t            readPointer(uintptr_t *pArg) const;
+    uintptr_t           readPointer() const;
 
 private:
                         Parcel(const Parcel& o);
@@ -243,9 +246,6 @@ private:
     status_t            growData(size_t len);
     status_t            restartWrite(size_t desired);
     status_t            continueWrite(size_t desired);
-    status_t            writePointer(uintptr_t val);
-    status_t            readPointer(uintptr_t *pArg) const;
-    uintptr_t           readPointer() const;
     void                freeDataNoInit();
     void                initState();
     void                scanForFds() const;
