@@ -57,7 +57,7 @@ Further more, the shell will not give an error like exec file not found instand 
 
 The source code of binder are copied from AOSP
 
-https://android.googlesource.com/ android-5.1.0_r1
+https://android.googlesource.com/android-5.1.0_r1
 
 kernel module
 https://android.googlesource.com/kernel/common/+/android-3.10 e48e8c45
