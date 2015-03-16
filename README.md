@@ -25,7 +25,7 @@ python tools/sidl/sidl.py xxx.sidl
 ```
 
 ### Make a test environment
-See [Make a test environment](tool/aarch64_qemu/make_a_test_environment.md)
+See [Make a test environment](tools/aarch64_qemu/make_a_test_environment.md)
 
 
 
