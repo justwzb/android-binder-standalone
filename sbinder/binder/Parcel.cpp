@@ -838,7 +838,8 @@ status_t Parcel::writeBlob(size_t len, WritableBlob* outBlob)
         void* ptr = writeInplace(len);
         if (!ptr) return NO_MEMORY;
 
-        outBlob->init(false /*mapped*/, ptr, len);
+        //outBlob->init(false /*mapped*/, ptr, len);
+        outBlob->init(this,(uint8_t*)ptr - mData,len);
         return NO_ERROR;
     }
 
@@ -1299,7 +1300,8 @@ status_t Parcel::readBlob(size_t len, ReadableBlob* outBlob) const
         const void* ptr = readInplace(len);
         if (!ptr) return BAD_VALUE;
 
-        outBlob->init(false /*mapped*/, const_cast<void*>(ptr), len);
+        //outBlob->init(false /*mapped*/, const_cast<void*>(ptr), len);
+        outBlob->init((android::Parcel*)this , (uint8_t*)ptr -mData, len);
         return NO_ERROR;
     }
 
@@ -1809,7 +1811,7 @@ void Parcel::scanForFds() const
 // --- Parcel::Blob ---
 
 Parcel::Blob::Blob() :
-        mMapped(false), mData(NULL), mSize(0) {
+        mMapped(false), mData(NULL), mSize(0), mParcel(NULL), mOffset(0) {
 }
 
 Parcel::Blob::~Blob() {
@@ -1827,12 +1829,24 @@ void Parcel::Blob::init(bool mapped, void* data, size_t size) {
     mMapped = mapped;
     mData = data;
     mSize = size;
+	mParcel = NULL;
+	mOffset = 0;
+}
+
+void Parcel::Blob::init(Parcel* parcel, size_t offset, size_t size) {
+    mMapped = false;
+    mData = NULL;
+    mSize = size;
+	mParcel = parcel;
+	mOffset = offset;
 }
 
 void Parcel::Blob::clear() {
     mMapped = false;
     mData = NULL;
     mSize = 0;
+	mParcel = NULL;
+	mOffset = 0;
 }
 
 }; // namespace android

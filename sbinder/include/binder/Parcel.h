@@ -285,11 +285,14 @@ private:
 
     protected:
         void init(bool mapped, void* data, size_t size);
+		void init(Parcel* parcel, size_t offset, size_t size);
         void clear();
 
         bool mMapped;
         void* mData;
         size_t mSize;
+		Parcel* mParcel;
+		size_t mOffset;
     };
 
     class FlattenableHelperInterface {
@@ -329,13 +332,27 @@ public:
     class ReadableBlob : public Blob {
         friend class Parcel;
     public:
-        inline const void* data() const { return mData; }
+        inline const void* data() const { 	
+			if(mParcel == NULL) {
+				return mData;
+			}
+			else {				
+				return (void*)(mParcel->data() + mOffset);
+			}
+		}
     };
 
     class WritableBlob : public Blob {
         friend class Parcel;
     public:
-        inline void* data() { return mData; }
+        inline void* data() { 	
+			if(mParcel == NULL) {
+				return mData;
+			}
+			else {
+				return (void*)(mParcel->data() + mOffset);
+			}
+		}
     };
 };
 

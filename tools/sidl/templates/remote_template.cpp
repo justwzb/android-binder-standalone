@@ -149,6 +149,8 @@ for ctx in sidl_context:
 """)
 
         #paramters list
+        blobcode = """
+                // re-get all pointers from blob to fix realloc issue in Parcel"""
         idx = 1
         for arg in ctx.getArguments():
             #output("==="+str(arg)+"===\n")
@@ -183,36 +185,51 @@ for ctx in sidl_context:
                         output("""
                 int _%(name)s_len = data.readInt32(); //read length, only 32bits length support yet
                 %(qualifier)s%(typ)s* %(name)s = NULL;
+""" % {"qualifier":qualifier,"typ":typ,"name":name})
+
+                        if inflag:
+                            output("""
+                Parcel::ReadableBlob _%(name)s_rblob;
+""" % {"qualifier":qualifier,"typ":typ,"name":name})
+                        
+                        if outflag:
+                            output("""
+                Parcel::WritableBlob _%(name)s_wblob;
+""" % {"qualifier":qualifier,"typ":typ,"name":name})
+
+                        output("""
                 if(_%(name)s_len > 0) {\
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
 
                         if inflag and not outflag:
                             output("""
-                    Parcel::ReadableBlob _%(name)s_rblob;
                     data.readBlob(_%(name)s_len,&_%(name)s_rblob);
                     %(name)s = (%(qualifier)s%(typ)s*)_%(name)s_rblob.data();
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
+                            blobcode += """
+                %(name)s = (%(qualifier)s%(typ)s*)_%(name)s_rblob.data();""" % {"qualifier":qualifier,"typ":typ,"name":name}
 
                         elif not inflag and outflag:
                             output("""
                     reply->writeInt32(_%(name)s_len);
-                    Parcel::WritableBlob _%(name)s_wblob;
                     reply->writeBlob(_%(name)s_len,&_%(name)s_wblob);
                     %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_wblob.data();
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
+                            blobcode += """
+                %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_wblob.data();""" % {"qualifier":qualifier,"typ":typ,"name":name}
 
                         elif inflag and outflag:
                             output("""
-                    Parcel::ReadableBlob _%(name)s_rblob;
                     data.readBlob(_%(name)s_len,&_%(name)s_rblob);
 
                     reply->writeInt32(_%(name)s_len);
-                    Parcel::WritableBlob _%(name)s_wblob;
                     reply->writeBlob(_%(name)s_len,&_%(name)s_wblob);
                     %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_wblob.data();
 
                     memcpy(%(name)s,_%(name)s_rblob.data(),_%(name)s_len);
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
+                            blobcode += """
+                %(name)s = %(qualifier)s(%(typ)s*)_%(name)s_wblob.data();""" % {"qualifier":qualifier,"typ":typ,"name":name}
                         else:
                             output("""
                     #error, pointer paramter %(name)s must be either in or output or both!
@@ -225,6 +242,7 @@ for ctx in sidl_context:
             #error not support this type of paramter %(qualifier)s%(typ)s %(name)s yet, please add code yourself
 """ % {"qualifier":qualifier,"typ":typ,"name":name})
 
+        output(blobcode)
         #gen arglist for func call
         calllist = ""
         idx = 1
