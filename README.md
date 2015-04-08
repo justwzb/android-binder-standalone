@@ -43,4 +43,4 @@ https://android.googlesource.com/kernel/common/+/android-3.10 e48e8c45
 ### TODO List:
 
  * removing bionic in this branch!       OK
- * Run on 64bits platform
+ * Run on 64bits platform				 OK
