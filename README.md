@@ -64,8 +64,11 @@ kernel module
 https://android.googlesource.com/kernel/common/+log/android-3.10 42df511
 
 
+### Run on 64 bit kernel
+Simply use latest kernel driver in AOSP and force define BINDER_IPC_32BIT.
+
 
 ### TODO List:
 
  * removing bionic in this branch!       OK
- * Run on 64bits platform
+ * Run on 64bits platform				 OK
